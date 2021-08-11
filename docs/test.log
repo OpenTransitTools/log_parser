@@ -1,0 +1,12 @@
+2015-05-22 16:46:46,985 - __main__ - INFO - Starting to Wait for Files
+2015-05-22 16:46:56,645 - __main__ - INFO - Starting: Attempt 1 Checking for New Files from gs://folder/folder/
+2015-05-22 16:47:46,488 - __main__ - INFO - Success: Downloading the Files from Cloud Storage: Return Code - 0 and FileCount 1
+2015-05-22 16:48:48,180 - __main__ - ERROR - Failed: Waiting for files the Files from Cloud Storage: gs://folder/folder/
+Traceback (most recent call last):
+  File "<ipython-input-16-132cda1c011d>", line 10, in <module>
+    if numFilesDownloaded == 0:
+NameError: name 'numFilesDownloaded' is not defined
+2015-05-22 16:49:17,918 - __main__ - INFO - Starting to Wait for Files
+2015-05-22 16:49:32,160 - __main__ - INFO - Starting: Attempt 1 Checking for New Files from gs://folder/folder/
+2015-05-22 16:49:39,329 - __main__ - INFO - Success: Downloading the Files from Cloud Storage: Return Code - 0 and FileCount 1
+2015-05-22 16:53:30,706 - __main__ - INFO - Starting to Wait for Files

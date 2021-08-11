@@ -10,6 +10,8 @@ requires = [
     'sqlalchemy',
     'zope.sqlalchemy',
     'psycopg2-binary',
+    'boltons',
+    'parse'
 ]
 
 extras_require = dict(

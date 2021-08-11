@@ -8,6 +8,9 @@ from parse import parse, with_pattern
 
 LOGGING_DEFAULT_DATEFMT = f"{logging.Formatter.default_time_format},%f"
 
+"""
+https://stackoverflow.com/questions/30627810/how-to-parse-this-custom-log-file-in-python
+"""
 
 # TODO better pattern
 @with_pattern(r"\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d,\d\d\d")
@@ -33,10 +36,11 @@ def from_log(file: os.PathLike, fmt: str):
                     pass
 
 
-if __name__ == "__main__":
-    for parsed_record in from_log(
-        file="so.log",
-        fmt="{asctime:asctime} - {module} - {levelname} - {message}"
-    ):
+def main():
+    for parsed_record in from_log(file="docs/test.log", fmt="{asctime:asctime} - {module} - {levelname} - {message}"):
         print(parsed_record)
+
+
+if __name__ == "__main__":
+    main()
 
