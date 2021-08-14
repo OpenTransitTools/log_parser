@@ -27,9 +27,49 @@ def parse_log_file(file: os.PathLike):
 
     fmt='{ip_a} "{ip_b}" - - [{apache_dt}] "{meth} {url} {http}" {code} {size} "{referer}" "{browser}"\n'
     for parsed_record in from_log(file, fmt):
-        if utils.is_tripplan(parsed_record['url']):
-            rec = parsed_record.named
+        rec = parsed_record.named
+        if rec and utils.is_tripplan(rec.get('url')):
             ret_val.append(rec)
+
+    return ret_val
+
+def parse_companies(qs: dict):
+    companies = qs.get('companies', [None])[0]
+
+
+def parse_shared_modes(ret_val: dict, modes: str):
+    has_mod = False
+    if 2 == 2:
+        # todo ... general check for mod mods and companies
+        has_mod = True
+
+        if 'BIKESHARE' in modes: ret_val['bike_rental'] = True
+        if 'RIDESHARE' in modes: ret_val['rideshare'] = True
+        if 'CARSHARE' in modes: ret_val['carshare'] = True
+        if 'SCOOTER' in modes: ret_val['scooter_rental'] = True
+
+    return has_mod
+
+
+def parse_modes(qs: dict):
+    ret_val = {
+        'walk': False,
+        'bike': False,
+        'bike_rental': False,
+        'scooter_rental': False,
+        'rideshare': False,
+        'carshare': False,
+    }
+
+    #import pdb; pdb.set_trace()
+
+    modes = qs.get('mode', [None])[0]
+    ret_val.update(utils.parse_transit_modes(modes))
+
+    if 'WALK' in modes: ret_val['walk'] = True
+    if 'BIKE' in modes: ret_val['bike'] = True
+
+    has_mod = parse_shared_modes(ret_val, modes)
 
     return ret_val
 
@@ -39,9 +79,12 @@ def main():
     recs = parse_log_file(file)
     print(recs)
 
-    dt =  utils.convert_apache_dt(recs[0]['apache_dt'])
+    dt =  utils.convert_apache_dt(recs[0].get('apache_dt'))
     print(dt.timestamp())
 
+    qs = utils.get_url_qs(recs[0]['url'])
+    m = parse_modes(qs)
+    print(m)
 
 
 if __name__ == "__main__":
