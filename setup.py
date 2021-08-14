@@ -11,7 +11,8 @@ requires = [
     'zope.sqlalchemy',
     'psycopg2-binary',
     'boltons',
-    'parse'
+    'parse',
+    'python-dateutil'
 ]
 
 extras_require = dict(
