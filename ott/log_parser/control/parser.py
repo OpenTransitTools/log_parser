@@ -29,8 +29,6 @@ def parse_log_file(file: os.PathLike):
     for parsed_record in from_log(file, fmt):
         if utils.is_tripplan(parsed_record['url']):
             rec = parsed_record.named
-            dt =  utils.convert_apache_dt(rec['apache_dt'])
-            rec['timestamp'] = dt.timestamp()
             ret_val.append(rec)
 
     return ret_val
@@ -40,6 +38,10 @@ def main():
     file="docs/test2.log"
     recs = parse_log_file(file)
     print(recs)
+
+    dt =  utils.convert_apache_dt(recs[0]['apache_dt'])
+    print(dt.timestamp())
+
 
 
 if __name__ == "__main__":
