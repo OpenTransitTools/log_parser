@@ -33,6 +33,7 @@ def parse_log_file(file: os.PathLike):
 
     return ret_val
 
+
 def parse_companies(qs: dict):
     companies = qs.get('companies', [None])[0]
 

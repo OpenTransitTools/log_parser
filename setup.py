@@ -8,11 +8,13 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
     'sqlalchemy',
+    'geoalchemy2',
     'zope.sqlalchemy',
     'psycopg2-binary',
     'boltons',
     'parse',
-    'python-dateutil'
+    'python-dateutil',
+    'ott.utils'
 ]
 
 extras_require = dict(
@@ -32,7 +34,6 @@ setup(
     author="Open Transit Tools",
     author_email="info@opentransittools.org",
     dependency_links=[
-        'git+https://github.com/OpenTransitTools/gtfsdb.git#egg=gtfsdb-1.0.0',
         'git+https://github.com/OpenTransitTools/utils.git#egg=ott.utils-0.1.0',
     ],
     license="Mozilla-derived (http://opentransittools.com)",
@@ -48,5 +49,6 @@ setup(
     entry_points="""
         [console_scripts]
         parse = ott.log_parser.control.parser:main
+        load = ott.log_parser.db.raw_log:main
     """,
 )
