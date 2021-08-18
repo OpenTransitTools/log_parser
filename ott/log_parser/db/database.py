@@ -65,8 +65,9 @@ class Database(object):
         this makes the Session() class ... the extension is for things like
         :see http://docs.sqlalchemy.org/en/latest/orm/contextual.html?highlight=scoped%20session :
         :see https://www.programcreek.com/python/example/97518/zope.sqlalchemy.ZopeTransactionExtension :
-        """
         self.session_factory = sessionmaker(bind=self.engine, extension=extension)
+        """
+        self.session_factory = sessionmaker(bind=self.engine)
         self.Session = scoped_session(self.session_factory)
 
     @property
@@ -75,7 +76,7 @@ class Database(object):
         return session
 
     @classmethod
-    def make_session(cls, url, schema, is_geospatial=False, create_db=False, prep_gtfsdb=True):
+    def make_session(cls, url, schema, is_geospatial=False, create_db=False):
         # note: include all ORM objects here, so the db finds them
         from .raw_log import RawLog
 
@@ -83,9 +84,6 @@ class Database(object):
             cls.db_singleton = Database(url, schema, is_geospatial)
             if create_db:
                 cls.db_singleton.create()
-            if prep_gtfsdb:
-                import gtfsdb
-                gtfsdb.Database.prep_gtfsdb_model_classes(schema, is_geospatial)
         return cls.db_singleton.session
 
     @classmethod
@@ -100,3 +98,9 @@ class Database(object):
         finally:
             session.commit()
             session.flush()
+
+    @classmethod
+    def connection(cls, raw_con, connection_record):
+        if 'sqlite' in type(raw_con).__module__:
+            pass  # listener to do crap like below...
+            # db_utils.add_math_to_sqllite(raw_con, connection_record)

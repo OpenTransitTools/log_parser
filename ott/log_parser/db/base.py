@@ -1,7 +1,7 @@
 import enum
 import abc
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Integer
 from geoalchemy2 import func
 from ott.utils import geo_utils
 
@@ -10,7 +10,7 @@ log = logging.getLogger(__file__)
 
 
 class _Base(object):
-    id = Column(String(255), primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
 
     @abc.abstractmethod
     def parse_record(cls, session, record, timestamp):

@@ -43,6 +43,7 @@ def parse_transit_modes(modes: str):
 
     return ret_val
 
+
 def convert_apache_dt(dt):
     """ break '26/Jan/2021:10:36:23 -0800' into date and time pieces, then parse those as string dateutil"""
     return dateutil_parser.parse(dt[:11] + " " + dt[12:])
@@ -77,3 +78,15 @@ def is_tripplan(url: str, filter_tests=True):
 
     return ret_val
 
+
+def make_session(create=False, section="db"):
+    #url = string_utils.get_val(args.database_url, config.get('database_url'))
+    from ott.utils.config_util import ConfigUtil
+    from .db.database import Database
+
+    config = ConfigUtil.factory(section=section)
+    url = config.get('database_url')
+    schema = config.get('schema')
+    is_geospatial = config.get('is_geospatial')
+    session = Database.make_session(url, schema, is_geospatial, create)
+    return session

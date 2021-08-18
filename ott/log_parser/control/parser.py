@@ -25,7 +25,7 @@ def from_log(file: os.PathLike, fmt: str):
 def parse_log_file(file: os.PathLike):
     ret_val = []
 
-    fmt='{ip_a} "{ip_b}" - - [{apache_dt}] "{meth} {url} {http}" {code} {size} "{referer}" "{browser}"\n'
+    fmt='{ip} - - [{apache_dt}] "{meth} {url} {http}" {code} {size} "{referer}" "{browser}"\n'
     for parsed_record in from_log(file, fmt):
         rec = parsed_record.named
         if rec and utils.is_tripplan(rec.get('url')):
