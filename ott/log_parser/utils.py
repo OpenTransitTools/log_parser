@@ -1,3 +1,5 @@
+import hmac
+import hashlib
 import urllib
 from dateutil import parser as dateutil_parser
 
@@ -90,3 +92,9 @@ def make_session(create=False, section="db"):
     is_geospatial = config.get('is_geospatial')
     session = Database.make_session(url, schema, is_geospatial, create)
     return session
+
+
+def obfuscate(input, key=u'key'):
+    digest = hmac.new(bytearray(key, 'ascii'), input.encode('utf-8'), hashlib.sha1).hexdigest()
+    return digest
+

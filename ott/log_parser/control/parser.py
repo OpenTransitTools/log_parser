@@ -78,13 +78,19 @@ def parse_modes(qs: dict):
 def main():
     file="docs/test2.log"
     recs = parse_log_file(file)
-    print(recs)
+    #print(recs)
 
     dt =  utils.convert_apache_dt(recs[0].get('apache_dt'))
     print(dt.timestamp())
 
+    ip = recs[0]['ip']
+    ip_obf = utils.obfuscate(ip)
+    print(ip)
+    print(ip_obf)
+
     qs = utils.get_url_qs(recs[0]['url'])
     m = parse_modes(qs)
+    m['user'] = ip_obf
     print(m)
 
 
