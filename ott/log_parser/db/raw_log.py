@@ -16,6 +16,7 @@ class RawLog(Base):
     code = Column(Integer())
     referer = Column(String(2084))
     browser = Column(String(2084))
+    app_name = Column(String(512), default="unknown")
 
     def __init__(self, rec):
         super(RawLog, self)
@@ -25,6 +26,33 @@ class RawLog(Base):
         self.code =   num_utils.to_int(rec['code'], 212)
         self.referer = rec['referer']
         self.browser = rec['browser']
+        self.app_name = self.get_app_name(self.referer, self.browser)
+
+    @classmethod
+    def get_app_name(cls, referer, browser = None, def_val = "trimet.org / maps.trimet.org"):
+        """ trimet specific -- override me for other agencies / uses """
+        app_name = def_val
+        if len(referer) > 3:
+            if 'call-test' in referer or 'test.trimet' in referer:
+                app_name = "test system"
+            elif 'call' in referer:
+                app_name = "call taker app"
+            elif 'labs' in referer or 'beta' in referer:
+                app_name = "TORA (new trimet.org)"
+            elif 'maps.trimet' in referer or 'ride' in referer:
+                app_name = "Interactive Map - ride.trimet.org"
+            elif 'mobilitymap' in referer:
+                app_name = "Mobility Map - mobilitymap.trimet.org"
+            elif 'trimet' in referer:
+                app_name = "Homepage - trimet.org"
+
+        if browser and len(browser) > 3:
+            if 'pdx bus' in browser.lower():
+                app_name = "PDX Bus"
+            elif 'trimet' in browser:
+                app_name = "xxxxx"
+
+        return app_name
 
     @classmethod
     def load(cls, session, chunk_size=10000, do_print=True):
@@ -120,8 +148,11 @@ def printer(content, end='\n', flush=False, do_print=True):
 def main():
     from ott.log_parser.control import parser
     from .. import utils
+    from ott.utils.parse.cmdline import db_cmdline
 
-    session = utils.make_session(True)
+    cmdline = db_cmdline.db_parser('log_parser', url_required=False, do_parse=True)
+
+    session = utils.make_session(cmdline.create)
     logs = []
 
     file="docs/test2.log"
