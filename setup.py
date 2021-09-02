@@ -48,8 +48,8 @@ setup(
     test_suite="ott.log_parser.tests",
     entry_points="""
         [console_scripts]
-        load = ott.log_parser.db.raw_log:main
-        parse = ott.log_parser.control.parser:main
-        parse = ott.log_parser.control.parser:main        
+        test_load = ott.log_parser.db.raw_log:main
+        loader = ott.log_parser.control.loader:main
+        parser = ott.log_parser.control.parser:main
     """,
 )

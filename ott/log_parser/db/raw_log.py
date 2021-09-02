@@ -138,7 +138,6 @@ class RawLog(Base):
         return geojson
 
 
-# todo: make util ... py2 and py3
 def printer(content, end='\n', flush=False, do_print=True):
    if do_print:
        #pass #print(content, end=end, flush=flush)
@@ -146,24 +145,9 @@ def printer(content, end='\n', flush=False, do_print=True):
 
 
 def main():
-    from ott.log_parser.control import parser
-    from .. import utils
-    from ott.utils.parse.cmdline import db_cmdline
-
-    cmdline = db_cmdline.db_parser('log_parser', url_required=False, do_parse=True)
-
-    session = utils.make_session(cmdline.create)
-    logs = []
-
-    file="docs/test2.log"
-    recs = parser.parse_log_file(file)
-    for r in recs:
-        log = RawLog(r)
-        logs.append(log)
-
-    session.add_all(logs)
-    session.commit()
-    session.flush()
+    from ..control.loader import load_log_file
+    session = utils.make_session(True)
+    load_log_file('docs/test2.log', session)
 
 
 if __name__ == "__main__":
