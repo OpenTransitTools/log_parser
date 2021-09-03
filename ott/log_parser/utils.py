@@ -114,3 +114,19 @@ def cmd_line_loader(prog_name='log_parser/bin/loader', sub_dirs=["maps8", "maps9
     if len(files) == 0:
         files = file_utils.find_files(cmdline.log_directory, ".log", True, sub_dirs)
     return files, cmdline
+
+
+def just_lat_lon(named_coord):
+    ret_val = named_coord
+    if "::" in named_coord:
+        s = named_coord.split("::")
+        ret_val = s[1]
+    return ret_val
+
+
+def append_string(result, string, sep=","):
+    """ append string to result, with proper sep """
+    ret_val = string
+    if result and string not in result:
+        ret_val = "{}{}{}".format(result, sep, string)
+    return ret_val

@@ -1,5 +1,5 @@
-from sqlalchemy import Column, String, Boolean, Integer, DateTime, func
-from sqlalchemy.orm import deferred, relationship
+from sqlalchemy import Column, String, Boolean, Integer, Float
+from sqlalchemy.orm import relationship
 
 from .. import utils
 from .base import Base
@@ -19,11 +19,15 @@ class ProcessedRequests(Base):
     ip_hash = Column(String(255), default="unknown")
     app_name = Column(String(512), default="unknown")
 
-    request_date = Column(DateTime())
-    is_now_request = Column(Boolean(), default=True)
+    modes = Column(String())
+    companies = Column(String())  # biketown, uber (eventually lyft), e-scooter company (or companies)
+
+    from_lat_lon = Column(String())
+    to_lat_lon = Column(String())
+
     filter_request = Column(Boolean(), default=False)
 
-    raw_logs = relationship(
+    log = relationship(
         'RawLog',
         primaryjoin='RawLog.id==ProcessedRequests.log_id',
         foreign_keys='(ProcessedRequests.log_id)',
@@ -32,11 +36,21 @@ class ProcessedRequests(Base):
     )
 
     def __init__(self, raw_rec):
+        #import pdb; pdb.set_trace()
         super(ProcessedRequests, self)
         self.log_id = raw_rec.id
         self.ip_hash = utils.obfuscate(raw_rec.ip)
         self.app_name = self.get_app_name(raw_rec.referer, raw_rec.browser)
         if self.app_name == TEST_SYSTEM:
+            self.filter_request = True
+
+        try:
+            qs = utils.get_url_qs(raw_rec.url)
+            self.parse_from(qs)
+            self.parse_to(qs)
+            self.parse_modes(qs)
+            self.parse_companies(qs)
+        except:
             self.filter_request = True
 
     @classmethod
@@ -68,6 +82,55 @@ class ProcessedRequests(Base):
                 app_name = def_val
 
         return app_name
+
+    def parse_from(self, qs):
+        self.from_lat_lon = utils.just_lat_lon(qs.get('fromPlace')[0])
+
+    def parse_to(self, qs):
+        self.to_lat_lon = utils.just_lat_lon(qs.get('toPlace')[0])
+
+    def parse_modes(self, qs):
+        """
+           BUS, TRAIN, (GONDOLA, BOAT, etc...), ala transit modes
+           [BIKE or BIKE_SHARE] [CAR or CAR_SHARE] [SCOOTER or SCOOTER_SHARE] [RIDE_SHARE]
+           or WALK_ONLY or BIKE_ONLY or BIKE_SHARE_ONLY
+        """
+        modes = qs.get('mode')[0].upper().strip()
+
+        # step 1: handle transit modes ... distilled down to just BUS,TRAIN (note order important)
+        if "BUS" in modes:
+            self.modes = utils.append_string(self.modes, "BUS")
+        if "TRANSIT" in modes:
+            self.modes = utils.append_string(self.modes, "BUS")
+            self.modes = utils.append_string(self.modes, "RAIL")
+        if utils.is_match_any(["RAIL", "SUBWAY", "TRAIN", "TRAM", "GONDOLA"], modes):
+            self.modes = utils.append_string(self.modes, "RAIL")
+        if "CAR_PARK" in modes:
+            self.modes = utils.append_string(self.modes, "CAR")  # Drive to Park & Ride
+
+        # step 2: bike
+        if "BICYCLE_RENT" in modes:
+            self.modes = utils.append_string(self.modes, "BIKE_SHARE")
+        elif "BICYCLE" in modes:
+            self.modes = utils.append_string(self.modes, "BIKE")
+
+        # step 3: shared modes
+        if "CAR_HAIL" in modes:
+            self.modes = utils.append_string(self.modes, "CAR_SHARE")
+        if "MICROMOBILITY_RENT" in modes:
+            self.modes = utils.append_string(self.modes, "SCOOTER_SHARE")
+        elif "MICROMOBILITY" in modes:
+            self.modes = utils.append_string(self.modes, "SCOOTER")
+
+        # step 4: walk / bike / etc... only
+        if self.modes is None: self.modes = "WALK_ONLY"
+        elif self.modes == "BIKE": self.modes = "BIKE_ONLY"
+        elif self.modes == "BIKE_SHARE": self.modes = "BIKE_SHARE_ONLY"
+        elif self.modes == "SCOOTER": self.modes = "SCOOTER_ONLY"
+        elif self.modes == "SCOOTER_SHARE": self.modes = "SCOOTER_SHARE_ONLY"
+
+    def parse_companies(self, qs):
+        self.companies = qs.get('companies', [None])[0].strip("NaN")
 
     @classmethod
     def process(cls, session, chunk_size=10000):
