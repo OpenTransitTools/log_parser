@@ -62,7 +62,7 @@ class ProcessedRequests(Base):
         return app_name
 
     @classmethod
-    def load(cls, session, chunk_size=10000):
+    def process(cls, session, chunk_size=10000):
         """
         will post-process
         """
@@ -70,14 +70,20 @@ class ProcessedRequests(Base):
         try:
             logs = RawLog.query(session)
             if logs and len(logs) > 0:
-                processed = []
+                # step 1: clear out processed table
                 ProcessedRequests.clear_table(session)
+
+                # step 2: loop thru raw log file entries
+                processed = []
                 for l in logs:
                     p = ProcessedRequests(l)
                     processed.append(p)
+                    # step 2b: save off the post-process data in 'chunks'
                     if len(processed) > chunk_size:
                         ProcessedRequests.persist_data(session, processed)
                         processed = []
+
+                # step 2c: save off the any remaining data from the last 'chunk'
                 ProcessedRequests.persist_data(session, processed)
         except Exception as e:
             log.exception(e)
@@ -87,7 +93,7 @@ def main():
     from .raw_log import main as raw_load
     raw_load()
     session = utils.make_session(False)
-    ProcessedRequests.load(session)
+    ProcessedRequests.process(session)
 
 
 if __name__ == "__main__":

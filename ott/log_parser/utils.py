@@ -3,6 +3,9 @@ import hashlib
 import urllib
 from dateutil import parser as dateutil_parser
 
+from ott.utils.parse.cmdline import db_cmdline
+from ott.utils import file_utils
+
 import logging
 log = logging.getLogger(__file__)
 
@@ -98,3 +101,16 @@ def obfuscate(input, key=u'key'):
     digest = hmac.new(bytearray(key, 'ascii'), input.encode('utf-8'), hashlib.sha1).hexdigest()
     return digest
 
+
+def cmd_line_loader(prog_name='log_parser/bin/loader', sub_dirs=["maps8", "maps9", "maps10"]):
+    parser = db_cmdline.db_parser(prog_name, url_required=False)
+    parser.add_argument(
+        '--log_directory', '--logs', '-logs', '-l',
+        required=True,
+        help="Directory of .log files..."
+    )
+    cmdline = parser.parse_args()
+    files = file_utils.find_files(cmdline.log_directory, ".log", True)
+    if len(files) == 0:
+        files = file_utils.find_files(cmdline.log_directory, ".log", True, sub_dirs)
+    return files, cmdline
