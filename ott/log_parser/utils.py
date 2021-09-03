@@ -51,7 +51,9 @@ def parse_transit_modes(modes: str):
 
 def convert_apache_dt(dt):
     """ break '26/Jan/2021:10:36:23 -0800' into date and time pieces, then parse those as string dateutil"""
-    return dateutil_parser.parse(dt[:11] + " " + dt[12:])
+    # NOTE: getting rid of timezone, which is messing with the date/time on linux
+    #       OLD format with TZ dateutil_parser.parse(dt[:11] + " " + dt[12:])
+    return dateutil_parser.parse(dt[:11] + " " + dt[12:20])
 
 
 def is_match_all(matches: list, string: str):

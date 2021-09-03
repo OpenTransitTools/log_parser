@@ -14,10 +14,12 @@ def csv(file_path, chunk_size=10000):
         with open(file_path, mode='w') as csv_file:
             csv = file_utils.make_csv_writer(csv_file, fieldnames)
             for r in requests:
-                csv.writerow(r.to_csv_dict())
+                if not r.filter_request:
+                    csv.writerow(r.to_csv_dict())
+
 
 def main():
-    csv("bla.csv")
+    csv("trip_requests.csv")
 
 
 if __name__ == "__main__":
