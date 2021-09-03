@@ -130,7 +130,9 @@ class ProcessedRequests(Base):
         elif self.modes == "SCOOTER_SHARE": self.modes = "SCOOTER_SHARE_ONLY"
 
     def parse_companies(self, qs):
-        self.companies = qs.get('companies', [None])[0].strip("NaN")
+        self.companies = qs.get('companies', [None])[0]
+        if self.companies:
+            self.companies = self.companies.strip("NaN")
 
     @classmethod
     def process(cls, session, chunk_size=10000):
