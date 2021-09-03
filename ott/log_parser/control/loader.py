@@ -1,5 +1,6 @@
 from ott.log_parser.control import parser
 
+from ott.log_parser.db.processed_requests import ProcessedRequests
 from .. import utils
 from ..db.raw_log import RawLog
 
@@ -23,6 +24,12 @@ def loader():
         for f in files:
             load_log_file(f, session)
     return files, cmdline
+
+
+def load_and_post_process():
+    loader()
+    session = utils.make_session(False)
+    ProcessedRequests.process(session)
 
 
 def main():

@@ -1,4 +1,5 @@
 # junk & crap
+*.csv
 US*geojson
 vendor*
 .eggs

@@ -159,6 +159,19 @@ class ProcessedRequests(Base):
         except Exception as e:
             log.exception(e)
 
+    def to_csv_dict(self):
+        ret_val = {
+            'ip_hash': self.ip_hash,
+            'app_name': self.app_name,
+            'url': self.log.url,
+            'date': self.log.date,
+            'modes': self.modes,
+            'companies': self.companies,
+            'from': self.from_lat_lon,
+            'to': self.to_lat_lon
+        }
+        return ret_val
+
 
 def main():
     from .raw_log import main as raw_load

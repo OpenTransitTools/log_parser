@@ -51,7 +51,8 @@ setup(
         test_load = ott.log_parser.db.raw_log:main
         test_process = ott.log_parser.db.processed_requests:main
         loader = ott.log_parser.control.loader:main
-        load_and_post_process = ott.log_parser.control.load_post_processor:main
+        load_and_post_process = ott.log_parser.control.loader:load_and_post_process
+        publisher = ott.log_parser.control.publisher:main
         parser = ott.log_parser.control.parser:main
     """,
 )
