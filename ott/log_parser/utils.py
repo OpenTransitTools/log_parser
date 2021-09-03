@@ -71,7 +71,7 @@ def is_tripplan(url: str, filter_tests=True):
     # step 0: is valid string
     if url and len(url) > 0:
         # step 1: check that the url looks like a trip plan
-        if "plan?" in url:
+        if "plan?" in url or "prod?" in url:
             ret_val = True
 
         # step 2: filter urls that 'test' OTP for uptime, etc...

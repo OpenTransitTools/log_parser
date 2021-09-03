@@ -8,6 +8,8 @@ from .raw_log import RawLog
 import logging
 log = logging.getLogger(__file__)
 
+TEST_SYSTEM="test system"
+
 
 class ProcessedRequests(Base):
     __tablename__ = 'processed_requests'
@@ -34,30 +36,36 @@ class ProcessedRequests(Base):
         self.log_id = raw_rec.id
         self.ip_hash = utils.obfuscate(raw_rec.ip)
         self.app_name = self.get_app_name(raw_rec.referer, raw_rec.browser)
+        if self.app_name == TEST_SYSTEM:
+            self.filter_request = True
 
     @classmethod
-    def get_app_name(cls, referer, browser = None, def_val = "trimet.org / maps.trimet.org"):
+    def get_app_name(cls, referer, browser = None, def_val = "Homepage (trimet.org)"):
         """ trimet specific -- override me for other agencies / uses """
         app_name = def_val
         if len(referer) > 3:
             if 'call-test' in referer or 'test.trimet' in referer:
-                app_name = "test system"
+                app_name = TEST_SYSTEM
             elif 'call' in referer:
-                app_name = "call taker app"
+                app_name = "CALL (call.trimet.org)"
+            elif 'newplanner' in referer or 'betaplanner' in referer:
+                app_name = "MOD (newplanner.trimet.org)"
             elif 'labs' in referer or 'beta' in referer:
                 app_name = "TORA (new trimet.org)"
             elif 'maps.trimet' in referer or 'ride' in referer:
-                app_name = "Interactive Map - ride.trimet.org"
+                app_name = "iMap (ride.trimet.org)"
             elif 'mobilitymap' in referer:
-                app_name = "Mobility Map - mobilitymap.trimet.org"
+                app_name = "Mobility Map (mobilitymap.trimet.org)"
             elif 'trimet' in referer:
-                app_name = "Homepage - trimet.org"
+                app_name = def_val
 
         if browser and len(browser) > 3:
-            if 'pdx bus' in browser.lower():
-                app_name = "PDX Bus"
+            if 'Java' in browser:
+                app_name = "API (developer.trimet.org)"
+            elif 'pdx%20bus' in browser.lower():
+                app_name = "PDX Bus (developer.trimet.org)"
             elif 'trimet' in browser:
-                app_name = "xxxxx"
+                app_name = def_val
 
         return app_name
 

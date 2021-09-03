@@ -13,6 +13,7 @@ def load_log_file(file, session):
         logs.append(log)
     RawLog.persist_data(session, logs)
 
+
 def loader():
     files, cmdline = utils.cmd_line_loader()
     if len(files) == 0:
@@ -21,6 +22,7 @@ def loader():
         session = utils.make_session(cmdline.create)
         for f in files:
             load_log_file(f, session)
+    return files, cmdline
 
 
 def main():

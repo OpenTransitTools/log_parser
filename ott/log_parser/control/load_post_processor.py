@@ -1,19 +1,20 @@
-from ott.log_parser.control import parser
-from ott.utils.parse.cmdline import db_cmdline
-from ott.utils import file_utils
-
+from ott.log_parser.db.processed_requests import ProcessedRequests
 from .. import utils
-from ..db.raw_log import RawLog
+from .loader import loader
+
+import logging
+log = logging.getLogger(__file__)
 
 
-def load_log_file(file, session):
-    """ load a log file into the db """
-    logs = []
-    recs = parser.parse_log_file(file)
-    for r in recs:
-        log = RawLog(r)
-        logs.append(log)
+def load_and_post_process():
+    loader()
+    session = utils.make_session(False)
+    ProcessedRequests.process(session)
 
-    session.add_all(logs)
-    session.commit()
-    session.flush()
+
+def main():
+    load_and_post_process()
+
+
+if __name__ == "__main__":
+    main()
