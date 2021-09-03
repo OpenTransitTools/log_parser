@@ -63,7 +63,6 @@ def parse_modes(qs: dict):
     }
 
     #import pdb; pdb.set_trace()
-
     modes = qs.get('mode', [None])[0]
     ret_val.update(utils.parse_transit_modes(modes))
 
@@ -96,4 +95,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

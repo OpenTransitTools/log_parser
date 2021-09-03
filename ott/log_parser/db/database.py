@@ -9,8 +9,6 @@ log = logging.getLogger(__file__)
 
 
 class Database(object):
-    """
-    """
     db_singleton = None
 
     def __init__(self, url, schema=None, is_geospatial=False, pool_size=20, session_extenstion=None):
@@ -78,26 +76,11 @@ class Database(object):
     @classmethod
     def make_session(cls, url, schema, is_geospatial=False, create_db=False):
         # note: include all ORM objects here, so the db finds them
-        from .raw_log import RawLog
-
         if cls.db_singleton is None:
             cls.db_singleton = Database(url, schema, is_geospatial)
             if create_db:
                 cls.db_singleton.create()
         return cls.db_singleton.session
-
-    @classmethod
-    def persist_data(cls, session, data):
-        try:
-            if isinstance(data, list):
-                session.add_all(data)
-            else:
-                session.add(data)
-        except Exception as e:
-            log.warning(e)
-        finally:
-            session.commit()
-            session.flush()
 
     @classmethod
     def connection(cls, raw_con, connection_record):

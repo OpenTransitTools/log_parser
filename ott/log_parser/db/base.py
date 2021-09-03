@@ -1,4 +1,3 @@
-import enum
 import abc
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer
@@ -19,7 +18,16 @@ class _Base(object):
     ## TODO: a lot of methods below are boiler plate from gtfsdb_realtime ... maybe add to ott.utils
 
     @classmethod
-    def clear_tables(cls, session):
+    def query(cls, session, limit=-111):
+        q = session.query(cls).order_by(cls.id)
+        if limit > 0:
+            segments = q.limit(limit)
+        else:
+            segments = q.all()
+        return segments
+
+    @classmethod
+    def clear_table(cls, session):
         log.info("clearing table {}".format(cls.__name__))
         session.query(cls).delete()
 
@@ -90,6 +98,22 @@ class _Base(object):
         if remove_old:
             engine.execute(table.delete())
         engine.execute(table.insert(), records)
+
+    @classmethod
+    def persist_data(cls, session, data):
+        """
+        can do a 'bulk_load' on a session, or (expensive) save off one record at a time
+        """
+        try:
+            if isinstance(data, list):
+                session.add_all(data)
+            else:
+                session.add(data)
+        except Exception as e:
+            log.warning(e)
+        finally:
+            session.commit()
+            session.flush()
 
     @classmethod
     def from_dict(cls, attrs):

@@ -49,6 +49,7 @@ setup(
     entry_points="""
         [console_scripts]
         test_load = ott.log_parser.db.raw_log:main
+        test_process = ott.log_parser.db.processed_requests:main
         loader = ott.log_parser.control.loader:main
         parser = ott.log_parser.control.parser:main
     """,
