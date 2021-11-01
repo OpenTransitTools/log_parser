@@ -18,7 +18,10 @@ def load_log_file(file, session):
 def loader():
     files, cmdline = utils.cmd_line_loader()
     if len(files) == 0:
-        print("ERROR: {} has no .log files!".format(cmdline.log_directory))
+        if cmdline.log_directory == "CLEAR":
+            utils.make_session(cmdline.create)
+        else:
+            print("ERROR: {} has no .log files!".format(cmdline.log_directory))
     else:
         session = utils.make_session(cmdline.create)
         for f in files:

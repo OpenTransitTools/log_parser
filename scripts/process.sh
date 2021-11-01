@@ -3,7 +3,8 @@
 # copy yesterday's log file to the processing dir
 scripts/cp_logs.sh
 
-# load db and generate .csv data
+# clear the db, load db and generate .csv data
+bin/loader -c -l CLEAR
 bin/load_and_post_process -c -l ~/processing/
 bin/publisher
 
