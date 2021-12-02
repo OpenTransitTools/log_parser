@@ -1,5 +1,5 @@
 DAYS=${1:-1}
-SIZE=${2:-25}
+SIZE=${2:-33}
 LOG_DIR=${3:-$HOME/httpd_logs}
 OUT_DIR=${4:-$HOME/processing}
 SVR_DIRS=${5:-maps8 maps9 maps10}
