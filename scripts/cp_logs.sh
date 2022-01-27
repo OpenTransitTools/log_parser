@@ -1,4 +1,5 @@
 DAYS=${1:-1}
+ADAYS=$((${DAYS} - 1))
 SIZE=${2:-33}
 LOG_DIR=${3:-$HOME/httpd_logs}
 OUT_DIR=${4:-$HOME/processing}
@@ -13,7 +14,7 @@ do
     echo $x
     mkdir -p $OUT_DIR/$x
 
-    cmd="find $LOG_DIR/$x -mtime -$DAYS -type f -size +${SIZE}M -exec cp {} $OUT_DIR/$x/ \;"
+    cmd="find $LOG_DIR/$x -mtime -$DAYS -a -mtime $ADAYS -type f -size +${SIZE}M -exec cp {} $OUT_DIR/$x/ \;"
     echo $cmd
     eval $cmd
 done
