@@ -19,7 +19,12 @@ class _Base(object):
 
     @classmethod
     def query(cls, session, limit=-111):
-        q = session.query(cls).order_by(cls.id)
+        q = session.query(cls)
+        if hasattr(cls, 'date'):
+            q = q.order_by(cls.date)
+        else:
+            q = q.order_by(cls.id)
+
         if limit > 0:
             segments = q.limit(limit)
         else:
