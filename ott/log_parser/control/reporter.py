@@ -17,6 +17,8 @@ from urllib import request
 from ott.utils import file_utils
 from ott.utils import date_utils
 from ott.utils import object_utils
+from ott.utils.parse.cmdline.base_cmdline import file_cmdline
+
 from .. import utils
 
 
@@ -135,8 +137,8 @@ class RequestorList(object):
 
 
 def main():
-    file="docs/test_report.csv"
-    rl = RequestorList(file)
+    cmd = file_cmdline("bin/reporter", "docs/test_report.csv")
+    rl = RequestorList(cmd.file)
     rl.print()
 
 
