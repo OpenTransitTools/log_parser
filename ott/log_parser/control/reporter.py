@@ -7,6 +7,11 @@
    - same user id (won't work for proxy'd requests ala otp_prod)
    - elapsed time between requests
    - filter out 'uptime' checks using PDX->ZOO as coords from counts, etc...
+
+  Ideas:
+   - number of unique customers per app
+   - 
+
 """
 from concurrent.futures import process
 from enum import unique
@@ -24,12 +29,44 @@ from .. import utils
 
 class SimilarRequests(object):
 
-    # number of repeated trips
-    repeats = None
-    reverse = None
+    def __init__(self, request_a, request_b):
+        self.same = False
+        self.reverse = False
+        self.similar = False        
+        self.request_a = request_a
+        self.request_b = request_b
 
-    def __init__(self, ):
-        self.requests=[]
+    @classmethod
+    def get_id(cls, request):
+        return request.get('from') + request.get('to')
+
+    @classmethod
+    def is_common(cls, request_a, request_b):
+        return (
+            request_a.get('from') == request_b.get('from') 
+            or request_a.get('to') == request_b.get('to')
+            or request_a.get('from') == request_b.get('to') 
+            or request_a.get('to') == request_b.get('from') 
+        )
+
+    @classmethod
+    def is_same(cls, request_a, request_b):
+        return request_a.get('from') == request_b.get('from') and request_a.get('to') == request_b.get('to')
+
+    @classmethod
+    def is_reverse(cls, request_a, request_b):
+        return request_a.get('from') == request_b.get('to') and request_a.get('to') == request_b.get('from')
+
+    @classmethod
+    def factory(cls, request_a, request_b):
+        ret_val = None
+        if cls.is_common(request_a, request_b):
+            ret_val = SimilarRequests(request_a, request_b)
+            if cls.is_same(request_a, request_b): ret_val.same = True
+            elif cls.is_reverse(request_a, request_b): ret_val.reverse = True
+            else: ret_val.similar = True
+
+        return ret_val
 
 
 class Requestor(object):
@@ -38,6 +75,7 @@ class Requestor(object):
     """
     id=None
     requests=None
+    similars=None
 
     # time between requests
     min_time = sys.maxsize
@@ -98,9 +136,19 @@ class Requestor(object):
             elif url.startswith('/otp_prod'):
                 self.tot_old += 1
 
+    def process_similars(self):
+        if self.num() > 1:
+            prev = None
+            self.similars={}
+            for r in self.requests:
+                if prev:
+                    key = self.requests
+
     def process(self):
+        self.requests = sorted(self.requests, key=lambda k: k['date'])
         self.process_time()
         self.process_counts()
+        self.process_similars()
 
     def print_str(self):
         ret_val = "{} {} {} -- {} {}".format(self.min_time, self.max_time, self.avg_time, self.tot_tora, self.tot_old)
