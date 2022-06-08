@@ -28,6 +28,7 @@ from .. import utils
 
 
 class SimilarRequests(object):
+    id = None
 
     def __init__(self, request_a, request_b):
         self.same = False
@@ -35,10 +36,16 @@ class SimilarRequests(object):
         self.similar = False        
         self.request_a = request_a
         self.request_b = request_b
+        self.id = self.get_id()
+        self.count = 1
 
-    @classmethod
-    def get_id(cls, request):
-        return request.get('from') + request.get('to')
+    def get_id(self):
+        if self.id is None:
+            self.id = self.request_a.get('from') + self.request_a.get('to') + self.request_b.get('from') + self.request_b.get('to')
+        return self.id
+
+    def inc(self):
+        self.count += 1
 
     @classmethod
     def is_common(cls, request_a, request_b):
@@ -100,6 +107,15 @@ class Requestor(object):
     def num(self):
         return len(self.requests)
 
+    def num_sims(self):
+        ret_val = []
+        if self.similars:
+             for s in self.similars.values():
+                ret_val.append(s.count)
+        else:
+            ret_val.append(0)
+        return ret_val
+
     def process_time(self):
         """
         calculate times for this batch of stuff
@@ -142,7 +158,15 @@ class Requestor(object):
             self.similars={}
             for r in self.requests:
                 if prev:
-                    key = self.requests
+                    sr = SimilarRequests.factory(prev, r)
+                    if sr:
+                        if sr.get_id() not in self.similars:
+                            self.similars[sr.get_id()] = sr
+                        else:
+                            sr.inc()
+                    else:
+                        print(".", end='')
+                prev = r
 
     def process(self):
         self.requests = sorted(self.requests, key=lambda k: k['date'])
@@ -151,7 +175,7 @@ class Requestor(object):
         self.process_similars()
 
     def print_str(self):
-        ret_val = "{} {} {} -- {} {}".format(self.min_time, self.max_time, self.avg_time, self.tot_tora, self.tot_old)
+        ret_val = "{} {} {} -- {} {} - {}".format(self.min_time, self.max_time, self.avg_time, self.tot_tora, self.tot_old, self.num_sims())
         return ret_val
 
 class RequestorList(object):
