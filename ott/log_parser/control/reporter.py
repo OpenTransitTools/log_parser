@@ -29,6 +29,7 @@ from .. import utils
 
 class SimilarRequests(object):
     id = None
+    count = 0
 
     def __init__(self, request_a, request_b):
         self.same = False
@@ -37,11 +38,10 @@ class SimilarRequests(object):
         self.request_a = request_a
         self.request_b = request_b
         self.id = self.get_id()
-        self.count = 1
 
     def get_id(self):
         if self.id is None:
-            self.id = self.request_a.get('from') + self.request_a.get('to') + self.request_b.get('from') + self.request_b.get('to')
+            self.id = "{} {} {} {}".format(self.request_a.get('from'), self.request_a.get('to'), self.request_b.get('from'), self.request_b.get('to'))
         return self.id
 
     def inc(self):
@@ -110,6 +110,7 @@ class Requestor(object):
     def num_sims(self):
         ret_val = []
         if self.similars:
+             # import pdb; pdb.set_trace()
              for s in self.similars.values():
                 ret_val.append(s.count)
         else:
@@ -162,10 +163,7 @@ class Requestor(object):
                     if sr:
                         if sr.get_id() not in self.similars:
                             self.similars[sr.get_id()] = sr
-                        else:
-                            sr.inc()
-                    else:
-                        print(".", end='')
+                        self.similars[sr.get_id()].inc()
                 prev = r
 
     def process(self):
@@ -177,6 +175,7 @@ class Requestor(object):
     def print_str(self):
         ret_val = "{} {} {} -- {} {} - {}".format(self.min_time, self.max_time, self.avg_time, self.tot_tora, self.tot_old, self.num_sims())
         return ret_val
+
 
 class RequestorList(object):
     requestors={}
