@@ -29,23 +29,16 @@ from .. import utils
 
 class SimilarRequests(object):
     id = None
+    requests = None
     count = 0
 
-    def __init__(self, request_a, request_b):
-        self.same = False
-        self.reverse = False
-        self.similar = False        
-        self.request_a = request_a
-        self.request_b = request_b
-        self.id = self.get_id()
+    def __init__(self, id):
+        self.id = id
+        self.requests = []
 
-    def get_id(self):
-        if self.id is None:
-            self.id = "{} {} {} {}".format(self.request_a.get('from'), self.request_a.get('to'), self.request_b.get('from'), self.request_b.get('to'))
-        return self.id
-
-    def inc(self):
-        self.count += 1
+    @classmethod
+    def make_id(self, request):
+       return "{}::{}".format(request.get('from'), request.get('to'))
 
     @classmethod
     def is_common(cls, request_a, request_b):
@@ -65,15 +58,16 @@ class SimilarRequests(object):
         return request_a.get('from') == request_b.get('to') and request_a.get('to') == request_b.get('from')
 
     @classmethod
-    def factory(cls, request_a, request_b):
-        ret_val = None
-        if cls.is_common(request_a, request_b):
-            ret_val = SimilarRequests(request_a, request_b)
-            if cls.is_same(request_a, request_b): ret_val.same = True
-            elif cls.is_reverse(request_a, request_b): ret_val.reverse = True
-            else: ret_val.similar = True
-
-        return ret_val
+    def factory(cls, request, cache):
+        id = cls.make_id(request)
+        c = None
+        if id not in cache:
+            c = SimilarRequests(id)
+            cache[id] = c
+        else:
+            c = cache[id]
+        c.count += 1
+        return None
 
 
 class Requestor(object):
@@ -81,7 +75,6 @@ class Requestor(object):
     request obj = ip_hash,app_name,url,date,modes,companies,from,to
     """
     id=None
-    requests=None
     similars=None
 
     # time between requests
@@ -114,7 +107,7 @@ class Requestor(object):
              for s in self.similars.values():
                 ret_val.append(s.count)
         else:
-            ret_val.append(0)
+            ret_val.append(1)
         return ret_val
 
     def process_time(self):
@@ -155,16 +148,9 @@ class Requestor(object):
 
     def process_similars(self):
         if self.num() > 1:
-            prev = None
             self.similars={}
             for r in self.requests:
-                if prev:
-                    sr = SimilarRequests.factory(prev, r)
-                    if sr:
-                        if sr.get_id() not in self.similars:
-                            self.similars[sr.get_id()] = sr
-                        self.similars[sr.get_id()].inc()
-                prev = r
+                SimilarRequests.factory(r, self.similars)
 
     def process(self):
         self.requests = sorted(self.requests, key=lambda k: k['date'])
