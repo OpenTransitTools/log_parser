@@ -54,7 +54,7 @@ class ProcessedRequests(Base):
             self.filter_request = True
 
     @classmethod
-    def get_app_name(cls, referer, browser = None, def_val = "Homepage (trimet.org)"):
+    def get_app_name(cls, referer, browser = None, def_val = "Old Text Planner (trimet.org)"):
         """ trimet specific -- override me for other agencies / uses """
         app_name = def_val
         if len(referer) > 3:
@@ -65,7 +65,7 @@ class ProcessedRequests(Base):
             elif 'newplanner' in referer or 'betaplanner' in referer:
                 app_name = "MOD (newplanner.trimet.org)"
             elif 'labs' in referer or 'beta' in referer:
-                app_name = "TORA (new trimet.org)"
+                app_name = "New TORA App (new trimet.org)"
             elif 'maps.trimet' in referer or 'ride' in referer:
                 app_name = "iMap (ride.trimet.org)"
             elif 'mobilitymap' in referer:
