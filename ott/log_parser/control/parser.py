@@ -17,6 +17,7 @@ def from_log(file: os.PathLike, fmt: str):
     """ return each entry in the file as a dict """
     with Path(file).open() as fp:
         for line in fp:
+            
             parsed = parse(fmt, line)
             if parsed is not None:
                 yield parsed
@@ -28,6 +29,7 @@ def parse_log_file(file: os.PathLike):
     fmt='{ip} - - [{apache_dt}] "{meth} {url} {http}" {code} {size} "{referer}" "{browser}"\n'
     for parsed_record in from_log(file, fmt):
         rec = parsed_record.named
+        # import pdb; pdb.set_trace()
         if rec and utils.is_tripplan(rec.get('url')):
             ret_val.append(rec)
 

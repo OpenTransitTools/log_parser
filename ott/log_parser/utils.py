@@ -1,3 +1,4 @@
+from email.policy import default
 import hmac
 import hashlib
 import urllib
@@ -111,10 +112,16 @@ def cmd_line_loader(prog_name='log_parser/bin/loader', sub_dirs=["maps8", "maps9
         required=True,
         help="Directory of .log files..."
     )
+    parser.add_argument(
+        '--files', '--f', '-f',
+        required=False,
+        default=".log",
+        help="Directory of .log files..."
+    )
     cmdline = parser.parse_args()
-    files = file_utils.find_files(cmdline.log_directory, ".log", True)
+    files = file_utils.find_files(cmdline.log_directory, cmdline.files, True)
     if len(files) == 0:
-        files = file_utils.find_files(cmdline.log_directory, ".log", True, sub_dirs)
+        files = file_utils.find_files(cmdline.log_directory, cmdline.files, True, sub_dirs)
     return files, cmdline
 
 
