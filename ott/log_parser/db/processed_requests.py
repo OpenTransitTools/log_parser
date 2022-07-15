@@ -40,7 +40,7 @@ class ProcessedRequests(Base):
         super(ProcessedRequests, self)
         self.log_id = raw_rec.id
         self.ip_hash = utils.obfuscate(raw_rec.ip)
-        self.app_name = self.get_app_name(raw_rec.referer, raw_rec.browser)
+        self.app_name = self.get_app_name(raw_rec)
         if self.app_name == TEST_SYSTEM:
             self.filter_request = True
 
@@ -54,9 +54,12 @@ class ProcessedRequests(Base):
             self.filter_request = True
 
     @classmethod
-    def get_app_name(cls, referer, browser = None, def_val = "Old Text Planner (trimet.org)"):
+    def get_app_name(cls, rec, def_val = "no idea what app..."):
         """ trimet specific -- override me for other agencies / uses """
         app_name = def_val
+        tora = "New TORA (trimet.org)"
+
+        referer = rec.referer
         if len(referer) > 3:
             if 'call-test' in referer or 'test.trimet' in referer:
                 app_name = TEST_SYSTEM
@@ -64,22 +67,24 @@ class ProcessedRequests(Base):
                 app_name = "CALL (call.trimet.org)"
             elif 'newplanner' in referer or 'betaplanner' in referer:
                 app_name = "MOD (newplanner.trimet.org)"
-            elif 'labs' in referer or 'beta' in referer:
-                app_name = "New TORA App (new trimet.org)"
             elif 'maps.trimet' in referer or 'ride' in referer:
                 app_name = "iMap (ride.trimet.org)"
             elif 'mobilitymap' in referer:
                 app_name = "Mobility Map (mobilitymap.trimet.org)"
+            elif 'labs' in referer or 'beta' in referer:
+                app_name = tora
             elif 'trimet' in referer:
-                app_name = def_val
-
+                if utils.is_mod_planner(rec.url):
+                    app_name = tora
+                else:
+                    app_name = "Old Text Planner (trimet.org)"
+                
+        browser = rec.browser
         if browser and len(browser) > 3:
             if 'Java' in browser:
                 app_name = "API (developer.trimet.org)"
             elif 'pdx%20bus' in browser.lower():
                 app_name = "PDX Bus (developer.trimet.org)"
-            elif 'trimet' in browser:
-                app_name = def_val
 
         return app_name
 

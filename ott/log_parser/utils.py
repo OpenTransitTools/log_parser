@@ -139,3 +139,12 @@ def append_string(result, string, sep=","):
     if result and string not in result:
         ret_val = "{}{}{}".format(result, sep, string)
     return ret_val
+
+
+def is_mod_planner(url):
+    return url.startswith('/otp_mod')
+
+
+def is_old_text_planner(url):
+    return url.startswith('/otp_prod')
+

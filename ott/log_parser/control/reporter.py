@@ -141,9 +141,9 @@ class Requestor(object):
     def process_counts(self):
         for r in self.requests:
             url = r.get('url')
-            if url.startswith('/otp_mod'):
+            if utils.is_mod_planner(url):
                 self.tot_tora += 1
-            elif url.startswith('/otp_prod'):
+            elif utils.is_old_text_planner(url):
                 self.tot_old += 1
 
     def process_similars(self):
