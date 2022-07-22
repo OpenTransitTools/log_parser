@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, Integer, Float
+from sqlalchemy import Column, String, Boolean, Integer, Float, func, and_
 from sqlalchemy.orm import relationship
 
 from .. import utils
@@ -88,6 +88,11 @@ class ProcessedRequests(Base):
 
         return app_name
 
+    def parse_request_date_time(self, qs):
+        # parse the request date and time strings out of the data
+        dt = utils.just_lat_lon(qs.get('fromPlace')[0])
+        tm = utils.just_lat_lon(qs.get('fromPlace')[0])
+
     def parse_from(self, qs):
         self.from_lat_lon = utils.just_lat_lon(qs.get('fromPlace')[0])
 
@@ -163,10 +168,33 @@ class ProcessedRequests(Base):
 
                 # step 2c: save off the any remaining data from the last 'chunk'
                 ProcessedRequests.persist_data(session, processed)
+
+                # step 3: 
+                #import pdb; pdb.set_trace()
+                n = session.query(ProcessedRequests.ip_hash,  func.count(ProcessedRequests.ip_hash).label("count")).group_by(ProcessedRequests.ip_hash).all()
+                for i in n:
+                    if i.count > 1:
+                        nreqs = session.query(ProcessedRequests).filter(ProcessedRequests.ip_hash == i.ip_hash).all()
+                        l = None
+                        for r in nreqs:
+                            # TODO: this code is wrong...but on the right track ... have to keep logging thru nreqs loop multiple times
+                            if l and l.log.url == r.log.url:
+                                print(r)
+                            else:
+                                print(r.log.url)
+                            l = r
         except Exception as e:
             log.exception(e)
 
     def to_csv_dict(self):
+        '''
+            defines the .csv output format
+            # todo (adds):
+                - dedup count
+                - request datetime
+                - browser
+                - ???
+        '''
         ret_val = {
             'ip_hash': self.ip_hash,
             'app_name': self.app_name,
