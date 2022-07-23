@@ -175,14 +175,13 @@ class ProcessedRequests(Base):
                 for i in n:
                     if i.count > 1:
                         nreqs = session.query(ProcessedRequests).filter(ProcessedRequests.ip_hash == i.ip_hash).all()
-                        l = None
-                        for r in nreqs:
-                            # TODO: this code is wrong...but on the right track ... have to keep logging thru nreqs loop multiple times
-                            if l and l.log.url == r.log.url:
-                                print(r)
-                            else:
-                                print(r.log.url)
-                            l = r
+                        for m, r in enumerate(nreqs):
+                            z = m+1
+                            while z < len(nreqs):
+                                l = nreqs[z]
+                                if l and l.log.url == r.log.url:
+                                    print(r)
+                                z += 1
         except Exception as e:
             log.exception(e)
 
