@@ -25,7 +25,7 @@ class ProcessedRequests(Base):
     from_lat_lon = Column(String())
     to_lat_lon = Column(String())
 
-    filter_request = Column(Boolean(), default=False)
+    filter_request = Column(Integer, default=None)
 
     log = relationship(
         'RawLog',
@@ -36,7 +36,7 @@ class ProcessedRequests(Base):
     )
 
     def __init__(self, raw_rec):
-        #import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace() 
         super(ProcessedRequests, self)
         self.log_id = raw_rec.id
         self.ip_hash = utils.obfuscate(raw_rec.ip)
@@ -51,13 +51,14 @@ class ProcessedRequests(Base):
             self.parse_modes(qs)
             self.parse_companies(qs)
         except:
-            self.filter_request = True
+            log.warning("couldn't parse " + raw_rec.url)
 
     @classmethod
     def get_app_name(cls, rec, def_val = "no idea what app..."):
         """ trimet specific -- override me for other agencies / uses """
         app_name = def_val
         tora = "New TORA (trimet.org)"
+        old = "Old Text Planner (trimet.org)"
 
         referer = rec.referer
         if len(referer) > 3:
@@ -77,8 +78,10 @@ class ProcessedRequests(Base):
                 if utils.is_mod_planner(rec.url):
                     app_name = tora
                 else:
-                    app_name = "Old Text Planner (trimet.org)"
-                
+                    app_name = old
+        elif utils.is_old_text_planner(rec.url):
+            app_name = old
+
         browser = rec.browser
         if browser and len(browser) > 3:
             if 'Java' in browser:
@@ -176,12 +179,16 @@ class ProcessedRequests(Base):
                     if i.count > 1:
                         nreqs = session.query(ProcessedRequests).filter(ProcessedRequests.ip_hash == i.ip_hash).all()
                         for m, r in enumerate(nreqs):
+                            if r.filter_request is not None:
+                                continue
                             z = m+1
                             while z < len(nreqs):
                                 l = nreqs[z]
-                                if l and l.log.url == r.log.url:
-                                    print(r)
+                                if l and l.filter_request is None and l.log.url == r.log.url:
+                                    # print(r)
+                                    l.filter_request = r.log_id
                                 z += 1
+                        session.commit()
         except Exception as e:
             log.exception(e)
 

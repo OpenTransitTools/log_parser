@@ -16,6 +16,7 @@ def load_log_file(file, session):
 
 
 def loader():
+    #import pdb; pdb.set_trace()
     files, cmdline = utils.cmd_line_loader()
     if len(files) == 0:
         if cmdline.log_directory == "CLEAR":

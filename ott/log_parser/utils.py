@@ -113,7 +113,7 @@ def cmd_line_loader(prog_name='log_parser/bin/loader', sub_dirs=["maps8", "maps9
         help="Directory of .log files..."
     )
     parser.add_argument(
-        '--files', '--f', '-f',
+        '--files', '--ff', '-ff',
         required=False,
         default=".log",
         help="Directory of .log files..."
