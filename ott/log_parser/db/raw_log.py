@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, func
+from sqlalchemy import Column, String, Integer, DateTime, Boolean, func
 from .base import Base
 from .. import utils
 from ott.utils import num_utils
@@ -16,6 +16,7 @@ class RawLog(Base):
     code = Column(Integer())
     referer = Column(String(2084))
     browser = Column(String(2084))
+    is_api = Column(Boolean(), default=False)
 
     def __init__(self, rec):
         super(RawLog, self)

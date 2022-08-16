@@ -74,7 +74,7 @@ def is_tripplan(url: str, filter_tests=True):
     # step 0: is valid string
     if url and len(url) > 0:
         # step 1: check that the url looks like a trip plan
-        if "plan?" in url or "prod?" in url:
+        if any(p in url for p in ["plan?", "prod?", "/tpws", "/tripplanner"]):
             ret_val = True
 
         # step 2: filter urls that 'test' OTP for uptime, etc...
@@ -147,4 +147,12 @@ def is_mod_planner(url):
 
 def is_old_text_planner(url):
     return url.startswith('/otp_prod')
+
+
+def is_developer_api(url):
+    return '/tpws/' in url
+
+
+def is_pdx_zoo(url):
+    return 'fromPlace=pdx&toPlace=zoo' in url
 

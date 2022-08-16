@@ -42,7 +42,7 @@ class ProcessedRequests(Base):
         self.ip_hash = utils.obfuscate(raw_rec.ip)
         self.app_name = self.get_app_name(raw_rec)
         if self.app_name == TEST_SYSTEM:
-            self.filter_request = True
+            self.filter_request = -111
 
         try:
             qs = utils.get_url_qs(raw_rec.url)
@@ -51,27 +51,40 @@ class ProcessedRequests(Base):
             self.parse_modes(qs)
             self.parse_companies(qs)
         except:
-            log.warning("couldn't parse " + raw_rec.url)
+            self.filter_request = -111
+            if raw_rec.is_api is False:
+                log.warning("couldn't parse " + raw_rec.url)
 
     @classmethod
-    def get_app_name(cls, rec, def_val = "no idea what app..."):
+    def get_app_name(cls, rec, def_val="no idea what app..."):
         """ trimet specific -- override me for other agencies / uses """
         app_name = def_val
-        tora = "New TORA (trimet.org)"
-        old = "Old Text Planner (trimet.org)"
 
-        referer = rec.referer
-        if len(referer) > 3:
+        tora = "TORA (trimet.org)"
+        call = "CALL (call.trimet.org)"
+        imap = "MAP (maps.trimet.org)"
+        mob = "MOBILITY MAP (mobilitymap.trimet.org)"
+        mod = "MOD (newplanner.trimet.org)"
+        old = "OLD (trimet.org text planner)"
+        api = "API (developer.trimet.org)"
+        pdxbus = "API - PDXBus (developer.trimet.org)"
+        pdxtransit = "API - PDXTransit (developer.trimet.org)"
+
+        test = "UPTIME TEST"
+
+
+        if len(rec.referer) > 3:
+            referer = rec.referer.lower()
             if 'call-test' in referer or 'test.trimet' in referer:
                 app_name = TEST_SYSTEM
             elif 'call' in referer:
-                app_name = "CALL (call.trimet.org)"
+                app_name = call
             elif 'newplanner' in referer or 'betaplanner' in referer:
-                app_name = "MOD (newplanner.trimet.org)"
+                app_name = mod
             elif 'maps.trimet' in referer or 'ride' in referer:
-                app_name = "iMap (ride.trimet.org)"
+                app_name = imap
             elif 'mobilitymap' in referer:
-                app_name = "Mobility Map (mobilitymap.trimet.org)"
+                app_name = mob
             elif 'labs' in referer or 'beta' in referer:
                 app_name = tora
             elif 'trimet' in referer:
@@ -82,13 +95,19 @@ class ProcessedRequests(Base):
         elif utils.is_old_text_planner(rec.url):
             app_name = old
 
-        browser = rec.browser
-        if browser and len(browser) > 3:
-            if 'Java' in browser:
-                app_name = "API (developer.trimet.org)"
-            elif 'pdx%20bus' in browser.lower():
-                app_name = "PDX Bus (developer.trimet.org)"
+        if utils.is_developer_api(rec.url):
+            rec.is_api = True
 
+        if rec.browser and len(rec.browser) > 3:
+            browser = rec.browser.lower()
+            if 'java' in browser:
+                app_name = api
+            if 'python' in browser and utils.is_pdx_zoo(rec.url):
+                app_name = test
+            if 'pdx%20bus' in browser:
+                app_name = pdxbus
+            if 'pdx%20tran' in browser:
+                app_name = pdxtransit
         return app_name
 
     def parse_request_date_time(self, qs):
@@ -97,6 +116,7 @@ class ProcessedRequests(Base):
         tm = utils.just_lat_lon(qs.get('fromPlace')[0])
 
     def parse_from(self, qs):
+        # https://maps.trimet.org/ride_ws/geostr?place=3
         self.from_lat_lon = utils.just_lat_lon(qs.get('fromPlace')[0])
 
     def parse_to(self, qs):

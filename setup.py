@@ -55,5 +55,6 @@ setup(
         publisher = ott.log_parser.control.publisher:main
         parser = ott.log_parser.control.parser:main
         report = ott.log_parser.control.reporter:main
+        stats = ott.log_parser.control.stats:main
     """,
 )
