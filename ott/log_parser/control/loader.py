@@ -4,14 +4,19 @@ from ott.log_parser.db.processed_requests import ProcessedRequests
 from .. import utils
 from ..db.raw_log import RawLog
 
+import logging
+logging.basicConfig(level = logging.INFO)
+log = logging.getLogger(__file__)
+
 
 def load_log_file(file, session):
     """ load a log file into the db """
     logs = []
     recs = parser.parse_log_file(file)
+    log.info("from file {}, parsed {} number of records".format(file, len(recs)))
     for r in recs:
-        log = RawLog(r)
-        logs.append(log)
+        rawlog = RawLog(r)
+        logs.append(rawlog)
     RawLog.persist_data(session, logs)
 
 

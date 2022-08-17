@@ -74,7 +74,9 @@ def is_tripplan(url: str, filter_tests=True):
     # step 0: is valid string
     if url and len(url) > 0:
         # step 1: check that the url looks like a trip plan
-        if any(p in url for p in ["plan?", "prod?", "/tpws", "/tripplanner"]):
+        # planner_keys = ["plan?", "prod?", "/tpws", "/tripplanner"]  # includes initial API calls, which eventually redirect to 'prod?'
+        planner_keys = ["plan?", "prod?"]
+        if any(p in url for p in planner_keys):
             ret_val = True
 
         # step 2: filter urls that 'test' OTP for uptime, etc...
