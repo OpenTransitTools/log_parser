@@ -1,3 +1,4 @@
+import imp
 from sqlalchemy import Column, String, Boolean, Integer, Float, func, and_
 from sqlalchemy.orm import relationship
 
@@ -213,19 +214,22 @@ class ProcessedRequests(Base):
             log.exception(e)
 
     def to_csv_dict(self):
-        '''
+        """
             defines the .csv output format
             # todo (adds):
                 - dedup count
                 - request datetime
-                - browser
                 - ???
-        '''
+        """
+        ua = utils.clean_useragent(self.log.browser)
+        browser = utils.get_browser(ua)
+
         ret_val = {
             'ip_hash': self.ip_hash,
             'app_name': self.app_name,
-            'url': self.log.url,
             'date': self.log.date,
+            'url': self.log.url,
+            'browser': browser,
             'modes': self.modes,
             'companies': self.companies,
             'from': self.from_lat_lon,

@@ -14,6 +14,7 @@ requires = [
     'boltons',
     'parse',
     'python-dateutil',
+    'user-agents',
     'ott.utils'
 ]
 

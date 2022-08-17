@@ -11,6 +11,31 @@ import logging
 log = logging.getLogger(__file__)
 
 
+
+def clean_useragent(useragent, fltr=['python-requests/', 'Java/']):
+    """ filter / fix up the user agent """
+    if useragent is None or len(useragent) < 5:
+        ret_val = ""
+    elif any(useragent.startswith(f) for f in fltr):
+        ret_val = ""
+    else:
+        ret_val = useragent
+    return ret_val
+
+
+def get_browser(useragent):
+    """ return a human-readable string (ala 'Samsung G970U / Android 12 / Chrome 99.1.2') """
+    ret_val = ""
+    try:
+        import user_agents
+        if useragent:
+            b = user_agents.parse(useragent)
+            ret_val = str(b)
+    except:
+        pass
+    return ret_val
+
+
 def get_url_qs(url: str):
     u = urllib.parse.urlparse(url)
     ret_val = urllib.parse.parse_qs(u.query)
