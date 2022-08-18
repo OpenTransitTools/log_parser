@@ -95,7 +95,11 @@ class ProcessedRequests(Base):
 
         test = "UPTIME TEST"
 
-
+        if utils.is_mod_planner(rec.url):
+            app_name = tora
+        elif utils.is_old_text_planner(rec.url):
+            app_name = old
+        
         if len(rec.referer) > 3:
             referer = rec.referer.lower()
             if 'call-test' in referer or 'test.trimet' in referer:
@@ -110,13 +114,6 @@ class ProcessedRequests(Base):
                 app_name = mob
             elif 'labs' in referer or 'beta' in referer:
                 app_name = tora
-            elif 'trimet' in referer:
-                if utils.is_mod_planner(rec.url):
-                    app_name = tora
-                else:
-                    app_name = old
-        elif utils.is_old_text_planner(rec.url):
-            app_name = old
 
         if utils.is_developer_api(rec.url):
             rec.is_api = True
