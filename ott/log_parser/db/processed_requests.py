@@ -42,8 +42,6 @@ class ProcessedRequests(Base):
         self.log_id = raw_rec.id
         self.ip_hash = utils.obfuscate(raw_rec.ip)
         self.app_name = self.get_app_name(raw_rec)
-        if self.app_name == TEST_SYSTEM:
-            self.filter_request = -111
 
         try:
             qs = utils.get_url_qs(raw_rec.url)
@@ -51,10 +49,34 @@ class ProcessedRequests(Base):
             self.parse_to(qs)
             self.parse_modes(qs)
             self.parse_companies(qs)
+            self.apply_filters(raw_rec.url)
         except:
             self.filter_request = -111
             if raw_rec.is_api is False:
                 log.warning("couldn't parse " + raw_rec.url)
+
+    def apply_filters(self, url):
+        """ filter out uptime test urls, etc... """
+        if self.filter_request is None:
+            if 'fromPlace=PDX' in url and ('toPlace=ZOO' in url or 'toPlace=SW%20Zoo%20Rd' in url):
+                self.filter_request = -111
+            if 'fromPlace=Oregon+Zoo' in url and 'toPlace=2730+NW+Vaughn' in url:
+                self.filter_request = -111
+            if 'fromPlace=4001+SW+Canyon+Rd' in url and 'toPlace=2730+NW+Vaughn' in url:
+                self.filter_request = -111
+            if 'toPlace=4001+SW+Canyon+Rd' in url and 'fromPlace=2730+NW+Vaughn' in url:
+                self.filter_request = -111
+            if 'fromPlace=45.456406%2C-122.579269' in url and 'toPlace=16380+Boones+Ferry' in url:
+                self.filter_request = -111
+            if 'fromPlace=SE+82nd+%26+Johnson+Cr' in url and 'toPlace=45.513954%2C-122.679634' in url:
+                self.filter_request = -111
+            if 'fromPlace=1230%20NW%2012TH' in url and 'toPlace=MULTNOMAH%20ATHLETIC%20CLUB' in url:
+                self.filter_request = -111
+            if 'fromPlace=S+River+Pkwy' in url and 'toPlace=Gateway+Transit+Center' in url:
+                self.filter_request = -111
+            if self.app_name == TEST_SYSTEM:
+                self.filter_request = -111
+
 
     @classmethod
     def get_app_name(cls, rec, def_val="no idea what app..."):
