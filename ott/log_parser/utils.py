@@ -25,14 +25,32 @@ def clean_useragent(useragent, fltr=['python-requests/', 'Java/']):
 
 def get_browser(useragent):
     """ return a human-readable string (ala 'Samsung G970U / Android 12 / Chrome 99.1.2') """
-    ret_val = ""
+    def mk_response(b="", d="", o="", ov="", br="", brv=""):
+        return {
+            'brand': b,
+            'device': d,
+            'os': o,
+            'os_version': ov,
+            'browser': br,
+            'browser_version': brv
+        }
+
+    ret_val = mk_response()
     try:
+        #import pdb; pdb.set_trace()
         import user_agents
         if useragent:
-            b = user_agents.parse(useragent)
-            ret_val = str(b)
-    except:
-        pass
+            ua = user_agents.parse(useragent)
+            ret_val = mk_response(
+                ua.device.brand,
+                ua.device.model,
+                ua.os.family,
+                ua.os.version_string,
+                ua.browser.family,
+                ua.browser.version_string
+            )
+    except Exception as e:
+        log.error(e)
     return ret_val
 
 

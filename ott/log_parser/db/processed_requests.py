@@ -37,7 +37,7 @@ class ProcessedRequests(Base):
     )
 
     def __init__(self, raw_rec):
-        #import pdb; pdb.set_trace() 
+        #import pdb; pdb.set_trace()
         super(ProcessedRequests, self)
         self.log_id = raw_rec.id
         self.ip_hash = utils.obfuscate(raw_rec.ip)
@@ -248,12 +248,12 @@ class ProcessedRequests(Base):
             'app_name': self.app_name,
             'date': self.log.date,
             'url': self.log.url,
-            'browser': browser,
             'modes': self.modes,
             'companies': self.companies,
             'from': self.from_lat_lon,
             'to': self.to_lat_lon
         }
+        ret_val.update(browser)
         return ret_val
 
 
