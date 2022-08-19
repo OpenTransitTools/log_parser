@@ -188,8 +188,8 @@ class ProcessedRequests(Base):
 
     def parse_companies(self, qs):
         self.companies = qs.get('companies', [None])[0]
-        if self.companies:
-            self.companies = self.companies.strip("NaN")
+        if self.companies and self.companies == "NaN":
+            self.companies = None
 
     @classmethod
     def process(cls, session, chunk_size=10000):
