@@ -52,31 +52,29 @@ class ProcessedRequests(Base):
             self.apply_filters(raw_rec.url)
         except:
             self.filter_request = -111
-            if raw_rec.is_api is False:
-                log.warning("couldn't parse " + raw_rec.url)
+            log.debug("couldn't parse " + raw_rec.url)
 
-    def apply_filters(self, url):
+    def apply_filters(self, url, fltval=-222):
         """ filter out uptime test urls, etc... """
         if self.filter_request is None:
             if 'fromPlace=PDX' in url and ('toPlace=ZOO' in url or 'toPlace=SW%20Zoo%20Rd' in url):
-                self.filter_request = -111
+                self.filter_request = fltval
             if 'fromPlace=Oregon+Zoo' in url and 'toPlace=2730+NW+Vaughn' in url:
-                self.filter_request = -111
+                self.filter_request = fltval
             if 'fromPlace=4001+SW+Canyon+Rd' in url and 'toPlace=2730+NW+Vaughn' in url:
-                self.filter_request = -111
+                self.filter_request = fltval
             if 'toPlace=4001+SW+Canyon+Rd' in url and 'fromPlace=2730+NW+Vaughn' in url:
-                self.filter_request = -111
+                self.filter_request = fltval
             if 'fromPlace=45.456406%2C-122.579269' in url and 'toPlace=16380+Boones+Ferry' in url:
-                self.filter_request = -111
+                self.filter_request = fltval
             if 'fromPlace=SE+82nd+%26+Johnson+Cr' in url and 'toPlace=45.513954%2C-122.679634' in url:
-                self.filter_request = -111
+                self.filter_request = fltval
             if 'fromPlace=1230%20NW%2012TH' in url and 'toPlace=MULTNOMAH%20ATHLETIC%20CLUB' in url:
-                self.filter_request = -111
+                self.filter_request = fltval
             if 'fromPlace=S+River+Pkwy' in url and 'toPlace=Gateway+Transit+Center' in url:
-                self.filter_request = -111
+                self.filter_request = fltval
             if self.app_name == TEST_SYSTEM:
-                self.filter_request = -111
-
+                self.filter_request = fltval
 
     @classmethod
     def get_app_name(cls, rec, def_val="no idea what app..."):
@@ -88,18 +86,14 @@ class ProcessedRequests(Base):
         imap = "MAP (maps.trimet.org)"
         mob = "MOBILITY MAP (mobilitymap.trimet.org)"
         mod = "MOD (newplanner.trimet.org)"
-        old = "OLD (trimet.org text planner)"
         api = "API (developer.trimet.org)"
+        old = "OLD (trimet.org planner)"
+        oldtxt = "OLD (text planner)"
         pdxbus = "API - PDXBus (developer.trimet.org)"
         pdxtransit = "API - PDXTransit (developer.trimet.org)"
 
         test = "UPTIME TEST"
 
-        if utils.is_mod_planner(rec.url):
-            app_name = tora
-        elif utils.is_old_text_planner(rec.url):
-            app_name = old
-        
         if len(rec.referer) > 3:
             referer = rec.referer.lower()
             if 'call-test' in referer or 'test.trimet' in referer:
@@ -115,8 +109,12 @@ class ProcessedRequests(Base):
             elif 'labs' in referer or 'beta' in referer:
                 app_name = tora
 
-        if utils.is_developer_api(rec.url):
-            rec.is_api = True
+        if utils.is_mod_planner(rec.url):
+            app_name = tora
+        elif utils.is_old_text_planner(rec.url):
+            app_name = oldtxt
+        elif utils.is_old_trimet(rec.url):
+            app_name = old
 
         if rec.browser and len(rec.browser) > 3:
             browser = rec.browser.lower()
@@ -128,6 +126,12 @@ class ProcessedRequests(Base):
                 app_name = pdxbus
             if 'pdx%20tran' in browser:
                 app_name = pdxtransit
+
+        if utils.is_developer_api(rec.url):
+            rec.is_api = True
+            if app_name is def_val:
+                app_name = api 
+
         return app_name
 
     def parse_request_date_time(self, qs):

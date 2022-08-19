@@ -11,7 +11,6 @@ import logging
 log = logging.getLogger(__file__)
 
 
-
 def clean_useragent(useragent, fltr=['python-requests/', 'Java/']):
     """ filter / fix up the user agent """
     if useragent is None or len(useragent) < 5:
@@ -39,7 +38,7 @@ def get_browser(useragent):
     try:
         #import pdb; pdb.set_trace()
         import user_agents
-        if useragent:
+        if useragent and len(useragent) > 5:
             ua = user_agents.parse(useragent)
             ret_val = mk_response(
                 ua.device.brand,
@@ -119,6 +118,7 @@ def is_tripplan(url: str, filter_tests=True):
         # step 1: check that the url looks like a trip plan
         # planner_keys = ["plan?", "prod?"]
         planner_keys = ["plan?", "prod?", "/tpws", "/tripplanner"]  # includes initial API calls, which eventually redirect to 'prod?'
+        planner_keys = ["plan?", "prod?", "/tpws", "/tripplanner", "/ride/planner.html", "/ride/ws/planner.html"]
         if any(p in url for p in planner_keys):
             ret_val = True
 
@@ -190,12 +190,16 @@ def is_mod_planner(url):
     return url.startswith('/otp_mod')
 
 
+def is_old_trimet(url):
+    return url.startswith('/otp_prod') or url.startswith("/ride/ws/planner.html")
+
+
 def is_old_text_planner(url):
-    return url.startswith('/otp_prod')
+    return url.startswith("/ride/planner.html")
 
 
 def is_developer_api(url):
-    return '/tpws/' in url
+    return '/tpws/' in url or "/ride/ws/planner.html" in url
 
 
 def is_pdx_zoo(url):
