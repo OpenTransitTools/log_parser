@@ -91,7 +91,6 @@ class ProcessedRequests(Base):
         oldtxt = "OLD (text planner)"
         pdxbus = "API - PDXBus (developer.trimet.org)"
         pdxtransit = "API - PDXTransit (developer.trimet.org)"
-
         test = "UPTIME TEST"
 
         if len(rec.referer) > 3:
