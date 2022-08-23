@@ -21,7 +21,7 @@ class Stats(object):
             if r.app_name in self.app_counts:
                 c = self.app_counts[r.app_name]
             else:
-                c = {'full': 0, 'filtered': 0}
+                c = {'full': 0, 'filtered': 0, 'related': 0}
                 self.app_counts[r.app_name] = c
 
             c['full'] += 1
@@ -29,14 +29,18 @@ class Stats(object):
             if r.filter_request is None:
                 c['filtered'] += 1
                 self.filtered_plans += 1
+            if r.related:
+                c['related'] += 1
 
     def print(self):
         names = sorted(self.app_counts)
-        print("Total Requests: {}".format(self.total_plans))
+        print("\nTotal Requests: {}".format(self.total_plans))
         print("Unique Requests: {}".format(self.filtered_plans))
+        print("  {:40} {:8} {:8} {:8}".format("APP NAME", "    total", "filtered", " related"))
+        print("  {:40} {:8} {:8} {:8}".format("--------", "    -----", "--------", " -------"))
         for n in names:
             o = self.app_counts[n]
-            print("  {:40}: {:6} {:6}".format(n, o['full'], o['filtered']))
+            print("  {:40}: {:8} {:8} {:8}".format(n, o['full'], o['filtered'], o['related']))
 
 
 def main():

@@ -16,6 +16,7 @@ class ProcessedRequests(Base):
     __tablename__ = 'processed_requests'
 
     log_id = Column(Integer, unique=True, index=True)
+    related_id = Column(Integer, unique=True, default=None)
 
     ip_hash = Column(String(255), default="unknown")
     app_name = Column(String(512), default="unknown")
@@ -34,6 +35,13 @@ class ProcessedRequests(Base):
         foreign_keys='(ProcessedRequests.log_id)',
         uselist=False, viewonly=True,
         lazy="joined", innerjoin=True,
+    )
+
+    related = relationship(
+        'RawLog',
+        primaryjoin='RawLog.id==ProcessedRequests.related_id',
+        foreign_keys='(ProcessedRequests.related_id)',
+        uselist=False, viewonly=True,
     )
 
     def __init__(self, raw_rec):
@@ -215,7 +223,7 @@ class ProcessedRequests(Base):
                 # step 2c: save off the any remaining data from the last 'chunk'
                 ProcessedRequests.persist_data(session, processed)
 
-                # step 3: 
+                # step 3: dedup requests -- batch into buck of requests by user, then compare URLs for 'sameness'
                 #import pdb; pdb.set_trace()
                 n = session.query(ProcessedRequests.ip_hash,  func.count(ProcessedRequests.ip_hash).label("count")).group_by(ProcessedRequests.ip_hash).all()
                 for i in n:
@@ -232,6 +240,10 @@ class ProcessedRequests(Base):
                                     l.filter_request = r.log_id
                                 z += 1
                         session.commit()
+
+                # step 4: find 'related' requests ... these are the initial request from a proxy 
+                #         this is done because the proxy will have IP address and Browser details lost in the forward
+                
         except Exception as e:
             log.exception(e)
 
