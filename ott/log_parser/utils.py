@@ -1,6 +1,7 @@
 from email.policy import default
 import hmac
 import hashlib
+from tokenize import Number
 import urllib
 from dateutil import parser as dateutil_parser
 
@@ -175,6 +176,33 @@ def just_lat_lon(named_coord):
     if "::" in named_coord:
         s = named_coord.split("::")
         ret_val = s[1]
+    return ret_val
+
+
+def is_valid_lat_lon(coord, coord_check=(45.5, -122.6), max_distance_km=300):
+    """ checks that a latlon string ("45.5,-122.5") contains two floating numbers
+        plus an optional distance check on said coordinate
+
+        :param coord: is a string in the form of "45.5,-122.5"
+        :params coord_check: if not null, used to check distance of coord to coord_check (validity)
+        :max_distance_km: how far from coord_check in km (default is region wide 300 km - PDX to Pendelton)        
+    """
+    ret_val = False
+    try:
+        ll = coord.split(",")
+        lat = float(ll[0])
+        lon = float(ll[1])
+
+        #import pdb; pdb.set_trace()
+        from haversine import haversine, Unit
+        if coord_check and haversine:
+            if haversine((lat, lon), coord_check, unit=Unit.KILOMETERS) <= max_distance_km:
+                ret_val = True
+        else:
+            ret_val = True
+    except Exception as e:
+        log.debug(e)
+        ret_val = False
     return ret_val
 
 

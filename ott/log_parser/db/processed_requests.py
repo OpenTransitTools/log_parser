@@ -1,3 +1,4 @@
+from ast import Return
 import imp
 from sqlalchemy import Column, String, Boolean, Integer, Float, func, and_
 from sqlalchemy.orm import relationship
@@ -148,10 +149,20 @@ class ProcessedRequests(Base):
 
     def parse_from(self, qs):
         # https://maps.trimet.org/ride_ws/geostr?place=3
+        ret_val = True
         self.from_lat_lon = utils.just_lat_lon(qs.get('fromPlace')[0])
+        if not utils.is_valid_lat_lon(self.from_lat_lon):
+            self.filter_request = -333
+            ret_val = False
+        return ret_val
 
     def parse_to(self, qs):
+        ret_val = True
         self.to_lat_lon = utils.just_lat_lon(qs.get('toPlace')[0])
+        if not utils.is_valid_lat_lon(self.to_lat_lon):
+            self.filter_request = -333
+            ret_val = False
+        return ret_val
 
     def parse_modes(self, qs):
         """
@@ -243,6 +254,24 @@ class ProcessedRequests(Base):
 
                 # step 4: find 'related' requests ... these are the initial request from a proxy 
                 #         this is done because the proxy will have IP address and Browser details lost in the forward
+                prs = session.query(ProcessedRequests).order_by(ProcessedRequests.log_id).all()
+                for i, p in enumerate(prs):
+                    if p.related is None:
+                        k = i + 1
+                        sim = []
+                        while k < len(prs):
+                            q = prs[k]
+                            if q.related:
+                                continue
+                            if p.log.date != q.log.date:
+                                break
+                            #if p
+                            if k == i+2:
+                                #p.related_id = q.log_id
+                                #q.related_id = p.log_id
+                                break
+                            k += 1
+                session.commit()
                 
         except Exception as e:
             log.exception(e)

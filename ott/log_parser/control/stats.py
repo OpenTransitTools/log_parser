@@ -35,7 +35,7 @@ class Stats(object):
     def print(self):
         names = sorted(self.app_counts)
         print("\nTotal Requests: {}".format(self.total_plans))
-        print("Unique Requests: {}".format(self.filtered_plans))
+        print("Unique Requests: {}\n".format(self.filtered_plans))
         print("  {:40} {:8} {:8} {:8}".format("APP NAME", "    total", "filtered", " related"))
         print("  {:40} {:8} {:8} {:8}".format("--------", "    -----", "--------", " -------"))
         for n in names:
