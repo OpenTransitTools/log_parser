@@ -172,15 +172,22 @@ def cmd_line_loader(prog_name='log_parser/bin/loader', sub_dirs=["maps8", "maps9
 
 
 def just_lat_lon(named_coord):
-    ret_val = named_coord
-    if "::" in named_coord:
-        s = named_coord.split("::")
-        ret_val = s[1]
-    return ret_val
+    lat = lon = None
+    try:
+        s = named_coord
+        if "::" in named_coord:
+            s = named_coord.split("::")[1]
+
+        ll = s.split(",")
+        lat = float(ll[0])
+        lon = float(ll[1])
+    except Exception as e:
+        log.debug(e)
+    return lat,lon
 
 
-def is_valid_lat_lon(coord, coord_check=(45.5, -122.6), max_distance_km=300):
-    """ checks that a latlon string ("45.5,-122.5") contains two floating numbers
+def is_valid_lat_lon(lat, lon, coord_check=(45.5, -122.6), max_distance_km=300):
+    """ checks that a lat, lon contains two values
         plus an optional distance check on said coordinate
 
         :param coord: is a string in the form of "45.5,-122.5"
@@ -189,17 +196,14 @@ def is_valid_lat_lon(coord, coord_check=(45.5, -122.6), max_distance_km=300):
     """
     ret_val = False
     try:
-        ll = coord.split(",")
-        lat = float(ll[0])
-        lon = float(ll[1])
-
         #import pdb; pdb.set_trace()
-        from haversine import haversine, Unit
-        if coord_check:
-            if haversine((lat, lon), coord_check, unit=Unit.KILOMETERS) <= max_distance_km:
+        if lat and lon:
+            if coord_check:
+                from haversine import haversine, Unit
+                if haversine((lat, lon), coord_check, unit=Unit.KILOMETERS) <= max_distance_km:
+                    ret_val = True
+            else:
                 ret_val = True
-        else:
-            ret_val = True
     except Exception as e:
         log.debug(e)
         ret_val = False

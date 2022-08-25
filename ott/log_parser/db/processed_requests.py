@@ -25,8 +25,10 @@ class ProcessedRequests(Base):
     modes = Column(String())
     companies = Column(String())  # biketown, uber (eventually lyft), e-scooter company (or companies)
 
-    from_lat_lon = Column(String())
-    to_lat_lon = Column(String())
+    from_lat = Column(Float())
+    from_lon = Column(Float())
+    to_lat = Column(Float())
+    to_lon = Column(Float())
 
     filter_request = Column(Integer, default=None)
 
@@ -142,24 +144,24 @@ class ProcessedRequests(Base):
 
         return app_name
 
-    def parse_request_date_time(self, qs):
-        # parse the request date and time strings out of the data
-        dt = utils.just_lat_lon(qs.get('fromPlace')[0])
-        tm = utils.just_lat_lon(qs.get('fromPlace')[0])
-
     def parse_from(self, qs):
-        # https://maps.trimet.org/ride_ws/geostr?place=3
         ret_val = True
-        self.from_lat_lon = utils.just_lat_lon(qs.get('fromPlace')[0])
-        if not utils.is_valid_lat_lon(self.from_lat_lon):
+        lat,lon = utils.just_lat_lon(qs.get('fromPlace')[0])
+        if utils.is_valid_lat_lon(lat, lon):
+            self.from_lat = lat
+            self.from_lon = lon
+        else:        
             self.filter_request = -333
             ret_val = False
         return ret_val
 
     def parse_to(self, qs):
         ret_val = True
-        self.to_lat_lon = utils.just_lat_lon(qs.get('toPlace')[0])
-        if not utils.is_valid_lat_lon(self.to_lat_lon):
+        lat,lon = utils.just_lat_lon(qs.get('toPlace')[0])
+        if utils.is_valid_lat_lon(lat, lon):
+            self.to_lat = lat
+            self.to_lon = lon
+        else:        
             self.filter_request = -333
             ret_val = False
         return ret_val
@@ -294,8 +296,10 @@ class ProcessedRequests(Base):
             'url': self.log.url,
             'modes': self.modes,
             'companies': self.companies,
-            'from': self.from_lat_lon,
-            'to': self.to_lat_lon
+            'from_lat': self.from_lat,
+            'from_lon': self.from_lon,
+            'to_lat': self.to_lat,
+            'to_lon': self.to_lon
         }
         ret_val.update(browser)
         return ret_val
