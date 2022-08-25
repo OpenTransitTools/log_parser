@@ -195,7 +195,7 @@ def is_valid_lat_lon(coord, coord_check=(45.5, -122.6), max_distance_km=300):
 
         #import pdb; pdb.set_trace()
         from haversine import haversine, Unit
-        if coord_check and haversine:
+        if coord_check:
             if haversine((lat, lon), coord_check, unit=Unit.KILOMETERS) <= max_distance_km:
                 ret_val = True
         else:
