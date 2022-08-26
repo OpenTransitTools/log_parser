@@ -217,6 +217,16 @@ def append_string(result, string, sep=","):
         ret_val = "{}{}{}".format(result, sep, string)
     return ret_val
 
+def find_proxy_and_target(a, b, localhost='127.0.0.1 "127.0.0.1"'):
+    """ find one of records with ip of localhost """
+    proxy = target = None
+    if localhost == a.log.ip and localhost != b.log.ip:
+        proxy = a
+        target = b
+    elif localhost != a.log.ip and localhost == b.log.ip:
+        proxy = b
+        target = a
+    return proxy,target
 
 def is_mod_planner(url):
     return url.startswith('/otp_mod')

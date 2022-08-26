@@ -257,24 +257,31 @@ class ProcessedRequests(Base):
                 # step 4: find 'related' requests ... these are the initial request from a proxy 
                 #         this is done because the proxy will have IP address and Browser details lost in the forward
                 prs = session.query(ProcessedRequests).order_by(ProcessedRequests.log_id).all()
+                
+                pz = []
+                tz = []
                 for i, p in enumerate(prs):
                     if p.related is None:
                         k = i + 1
-                        sim = []
                         while k < len(prs):
                             q = prs[k]
-                            if q.related:
+                            if p.related or q.related or p.log_id == q.log_id:
                                 continue
                             if p.log.date != q.log.date:
                                 break
-                            #if p
-                            if k == i+2:
-                                #p.related_id = q.log_id
-                                #q.related_id = p.log_id
+                            proxy, target = utils.find_proxy_and_target(p, q)
+                            if proxy and target:
+                                if target.log_id not in tz and proxy.log_id not in pz:
+                                    proxy.related_id = target.log_id
+                                    target.related_id = proxy.log_id
+                                    tz.append(target.log_id)
+                                    pz.append(proxy.log_id)
+                                else:
+                                    #import pdb; pdb.set_trace()
+                                    pass
                                 break
                             k += 1
-                session.commit()
-                
+                session.commit()                
         except Exception as e:
             log.exception(e)
 
