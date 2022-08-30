@@ -36,3 +36,13 @@ cmd="grep mode.WALK\& $file | grep -iv python|grep -vi Knowledge|grep -vi compat
 echo $cmd
 eval $cmd
 echo
+
+
+echo
+echo "count number of unique urls"
+cmd="grep OLD $file | awk -F',' '{print $4}' | sort | uniq -c |sort"
+echo $cmd
+eval $cmd
+echo
+
+
