@@ -94,9 +94,10 @@ class ProcessedRequests(Base):
                 self.filter_request = fltval + 11
             if 'Hayden%20Meadows' in url:
                 self.filter_request = fltval + 12
-            if 'fromPlace=N%20 %20%26%20 ' in url:
+            if 'fromPlace=SW%20Patton%20%26%20' in url:
+                self.filter_request = fltval + 13
+            if 'fromPlace=N%20 XXXXXX %20%26%20 ' in url:
                 self.filter_request = fltval + 9
-
             if self.app_name == TEST_SYSTEM:
                 self.filter_request = fltval + 55
             if "OLD" in self.app_name and self.modes == "WALK_ONLY":
