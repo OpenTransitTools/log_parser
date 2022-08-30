@@ -29,3 +29,10 @@ cmd="grep 'plan?' $file | grep fromPlace | grep -v otp_prod | grep -v otp_mod | 
 echo $cmd
 eval $cmd
 echo
+
+echo
+echo "number of WALK ONLY trips that are *not* BOT generated"
+cmd="grep mode.WALK\& $file | grep -iv python|grep -vi Knowledge|grep -vi compatible|wc"
+echo $cmd
+eval $cmd
+echo

@@ -86,6 +86,10 @@ class ProcessedRequests(Base):
                 self.filter_request = fltval
             if self.app_name == TEST_SYSTEM:
                 self.filter_request = fltval
+            if "OLD" in self.app_name and self.modes == "WALK_ONLY":
+                # note: OLD planner WALK_ONLY trips are mostly (totally) robots (i.e., search engine and Knowlege AI junk)
+                # better solution would be relating OLD app 'proxy' trips to original traffic and looking at referrer 
+                self.filter_request = fltval
 
     @classmethod
     def get_app_name(cls, rec, def_val="no idea what app..."):
@@ -253,35 +257,6 @@ class ProcessedRequests(Base):
                                     l.filter_request = r.log_id
                                 z += 1
                         session.commit()
-
-                # step 4: find 'related' requests ... these are the initial request from a proxy 
-                #         this is done because the proxy will have IP address and Browser details lost in the forward
-                prs = session.query(ProcessedRequests).order_by(ProcessedRequests.log_id).all()
-                
-                pz = []
-                tz = []
-                for i, p in enumerate(prs):
-                    if p.related is None:
-                        k = i + 1
-                        while k < len(prs):
-                            q = prs[k]
-                            if p.related or q.related or p.log_id == q.log_id:
-                                continue
-                            if p.log.date != q.log.date:
-                                break
-                            proxy, target = utils.find_proxy_and_target(p, q)
-                            if proxy and target:
-                                if target.log_id not in tz and proxy.log_id not in pz:
-                                    proxy.related_id = target.log_id
-                                    target.related_id = proxy.log_id
-                                    tz.append(target.log_id)
-                                    pz.append(proxy.log_id)
-                                else:
-                                    #import pdb; pdb.set_trace()
-                                    pass
-                                break
-                            k += 1
-                session.commit()                
         except Exception as e:
             log.exception(e)
 
