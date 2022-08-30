@@ -84,13 +84,13 @@ class ProcessedRequests(Base):
                 self.filter_request = fltval + 7
             if '=NE%20Sandy%20%26%2044th' in url:
                 self.filter_request = fltval + 8
-            if '=Block%20NE%20Gertz%20Rd' in url:
+            if 'Block%20NE%20Gertz%20Rd' in url:
                 self.filter_request = fltval + 9
             if '=N%20Kilpatrick%20%26%20Denver' in url:
                 self.filter_request = fltval + 10
             if '=N%20Marine%20%26%20Anchor' in url:
                 self.filter_request = fltval + 11
-            if '=Hayden%20Meadows' in url:
+            if '=N%20Hayden%20Meadows%20Dr%20%26%20' in url or '%20%26%20Hayden%20Meadows' in url:
                 self.filter_request = fltval + 12
             if '=SW%20Patton%20%26%20' in url:
                 self.filter_request = fltval + 13
@@ -114,6 +114,14 @@ class ProcessedRequests(Base):
                 self.filter_request = fltval + 22
             if '=NE%20Halsey%20%26%20' in url:
                 self.filter_request = fltval + 23
+            if '=NE%2015th%20%26%20' in url:
+                self.filter_request = fltval + 24
+            if '=E%20Burnside%20%26%20NE%20' in url:
+                self.filter_request = fltval + 25
+            if '=SE%2050th%20%26%20' in url or '=SE%2060th%20%26%20' in url:
+                self.filter_request = fltval + 26
+            if '=SE%20Yamhill%20%26%20' in url:
+                self.filter_request = fltval + 27
             if '=N%20 XXXXXX %20%26%20 ' in url:
                 self.filter_request = fltval + 9
             if self.app_name == TEST_SYSTEM:
