@@ -75,61 +75,62 @@ class ProcessedRequests(Base):
             if '=4001+SW+Canyon+Rd' in url and '=2730+NW+Vaughn' in url:
                 self.filter_request = fltval + 2
             if 'fromPlace=45.456406%2C-122.579269' in url and 'toPlace=16380+Boones+Ferry' in url:
-                self.filter_request = fltval + 4
+                self.filter_request = fltval + 3
             if 'fromPlace=SE+82nd+%26+Johnson+Cr' in url and 'toPlace=45.513954%2C-122.679634' in url:
-                self.filter_request = fltval + 5
+                self.filter_request = fltval + 4
             if 'fromPlace=1230%20NW%2012TH' in url and 'toPlace=MULTNOMAH%20ATHLETIC%20CLUB' in url:
-                self.filter_request = fltval + 6
+                self.filter_request = fltval + 5
             if 'fromPlace=S+River+Pkwy' in url and 'toPlace=Gateway+Transit+Center' in url:
-                self.filter_request = fltval + 7
-            if '=NE%20Sandy%20%26%2044th' in url:
-                self.filter_request = fltval + 8
-            if 'Block%20NE%20Gertz%20Rd' in url:
-                self.filter_request = fltval + 9
-            if '=N%20Kilpatrick%20%26%20Denver' in url:
-                self.filter_request = fltval + 10
-            if '=N%20Marine%20%26%20Anchor' in url:
-                self.filter_request = fltval + 11
-            if '=N%20Hayden%20Meadows%20Dr%20%26%20' in url or '%20%26%20Hayden%20Meadows' in url:
-                self.filter_request = fltval + 12
-            if '=SW%20Patton%20%26%20' in url:
-                self.filter_request = fltval + 13
-            if '=NE%20Dekum%20%26%20' in url:
-                self.filter_request = fltval + 14
-            if '=NE%20Alberta%20%26%202' in url or '=NE%2027th%20%26%20Alberta' in url:
-                self.filter_request = fltval + 15
-            if '=NE%2033rd%20%26%20Emerson' in url or '=NE%2033rd%20%26%20Siskiyou' in url:
-                self.filter_request = fltval + 16
-            if '=NE%20Sandy%20%26%20' in url:
-                self.filter_request = fltval + 17
-            if '=Delta%20Park/Vanport' in url or '=N%20Union%20Ct%20%26%20East%20Delta%20Park%20Entrance' in url:
-                self.filter_request = fltval + 18
-            if '=NE%2042nd%20%26%20' in url:
-                self.filter_request = fltval + 19
-            if '=NE%20122nd%20%26%20' in url or '=SE%20122nd%20%26%20' in url:
-                self.filter_request = fltval + 20
-            if '=1300%20Block%20SE%20122nd' in url or '=SE%20Stark%20%26%20122nd' in url:
-                self.filter_request = fltval + 21
-            if '=NE%2027th%20%26%20' in url or '%20%26%2027th' in url:
-                self.filter_request = fltval + 22
-            if '=NE%20Halsey%20%26%20' in url:
-                self.filter_request = fltval + 23
-            if '=NE%2015th%20%26%20' in url:
-                self.filter_request = fltval + 24
-            if '=E%20Burnside%20%26%20NE%20' in url:
-                self.filter_request = fltval + 25
-            if '=SE%2050th%20%26%20' in url or '=SE%2060th%20%26%20' in url:
-                self.filter_request = fltval + 26
-            if '=SE%20Yamhill%20%26%20' in url:
-                self.filter_request = fltval + 27
-            if '=N%20 XXXXXX %20%26%20 ' in url:
-                self.filter_request = fltval + 9
+                self.filter_request = fltval + 6
+            if "OLD" in self.app_name:
+                if self.modes == "WALK_ONLY":
+                    # note: OLD planner WALK_ONLY trips are mostly (totally) robots (i.e., search engine and Knowlege AI junk)
+                    # better solution would be relating OLD app 'proxy' trips to original traffic and looking at referrer 
+                    self.filter_request = fltval + 7
+                """"""
+                if '=NE%20Sandy%20%26%2044th' in url:
+                    self.filter_request = fltval + 8
+                if 'Block%20NE%20Gertz%20Rd' in url:
+                    self.filter_request = fltval + 9
+                if '=N%20Kilpatrick%20%26%20Denver' in url:
+                    self.filter_request = fltval + 10
+                if '=N%20Marine%20%26%20Anchor' in url:
+                    self.filter_request = fltval + 11
+                if '=N%20Hayden%20Meadows%20Dr%20%26%20' in url or '%20%26%20Hayden%20Meadows' in url:
+                    self.filter_request = fltval + 12
+                if '=SW%20Patton%20%26%20' in url:
+                    self.filter_request = fltval + 13
+                if '=NE%20Dekum%20%26%20' in url:
+                    self.filter_request = fltval + 14
+                if '=NE%20Alberta%20%26%202' in url or '=NE%2027th%20%26%20Alberta' in url:
+                    self.filter_request = fltval + 15
+                if '=NE%2033rd%20%26%20Emerson' in url or '=NE%2033rd%20%26%20Siskiyou' in url:
+                    self.filter_request = fltval + 16
+                if '=NE%20Sandy%20%26%20' in url:
+                    self.filter_request = fltval + 17
+                if '=Delta%20Park/Vanport' in url or '=N%20Union%20Ct%20%26%20East%20Delta%20Park%20Entrance' in url:
+                    self.filter_request = fltval + 18
+                if '=NE%2042nd%20%26%20' in url:
+                    self.filter_request = fltval + 19
+                if '=NE%20122nd%20%26%20' in url or '=SE%20122nd%20%26%20' in url:
+                    self.filter_request = fltval + 20
+                if '=1300%20Block%20SE%20122nd' in url or '=SE%20Stark%20%26%20122nd' in url:
+                    self.filter_request = fltval + 21
+                if '=NE%2027th%20%26%20' in url or '%20%26%2027th' in url:
+                    self.filter_request = fltval + 22
+                if '=NE%20Halsey%20%26%20' in url:
+                    self.filter_request = fltval + 23
+                if '=NE%2015th%20%26%20' in url:
+                    self.filter_request = fltval + 24
+                if '=E%20Burnside%20%26%20NE%20' in url:
+                    self.filter_request = fltval + 25
+                if '=SE%2050th%20%26%20' in url or '=SE%2060th%20%26%20' in url:
+                    self.filter_request = fltval + 26
+                if '=SE%20Yamhill%20%26%20' in url:
+                    self.filter_request = fltval + 27
+                """"""
             if self.app_name == TEST_SYSTEM:
                 self.filter_request = fltval + 55
-            if "OLD" in self.app_name and self.modes == "WALK_ONLY":
-                # note: OLD planner WALK_ONLY trips are mostly (totally) robots (i.e., search engine and Knowlege AI junk)
-                # better solution would be relating OLD app 'proxy' trips to original traffic and looking at referrer 
-                self.filter_request = fltval + 77
 
     @classmethod
     def get_app_name(cls, rec, def_val="no idea what app..."):
