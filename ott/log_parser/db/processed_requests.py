@@ -1,4 +1,6 @@
-from sqlalchemy import Column, String, Boolean, Integer, Float
+from ast import Return
+import imp
+from sqlalchemy import Column, String, Boolean, Integer, Float, func, and_
 from sqlalchemy.orm import relationship
 
 from .. import utils
@@ -15,6 +17,7 @@ class ProcessedRequests(Base):
     __tablename__ = 'processed_requests'
 
     log_id = Column(Integer, unique=True, index=True)
+    related_id = Column(Integer, unique=True, default=None)
 
     ip_hash = Column(String(255), default="unknown")
     app_name = Column(String(512), default="unknown")
@@ -22,10 +25,12 @@ class ProcessedRequests(Base):
     modes = Column(String())
     companies = Column(String())  # biketown, uber (eventually lyft), e-scooter company (or companies)
 
-    from_lat_lon = Column(String())
-    to_lat_lon = Column(String())
+    from_lat = Column(Float())
+    from_lon = Column(Float())
+    to_lat = Column(Float())
+    to_lon = Column(Float())
 
-    filter_request = Column(Boolean(), default=False)
+    filter_request = Column(Integer, default=None)
 
     log = relationship(
         'RawLog',
@@ -35,14 +40,19 @@ class ProcessedRequests(Base):
         lazy="joined", innerjoin=True,
     )
 
+    related = relationship(
+        'RawLog',
+        primaryjoin='RawLog.id==ProcessedRequests.related_id',
+        foreign_keys='(ProcessedRequests.related_id)',
+        uselist=False, viewonly=True,
+    )
+
     def __init__(self, raw_rec):
         #import pdb; pdb.set_trace()
         super(ProcessedRequests, self)
         self.log_id = raw_rec.id
         self.ip_hash = utils.obfuscate(raw_rec.ip)
-        self.app_name = self.get_app_name(raw_rec.referer, raw_rec.browser)
-        if self.app_name == TEST_SYSTEM:
-            self.filter_request = True
+        self.app_name = self.get_app_name(raw_rec)
 
         try:
             qs = utils.get_url_qs(raw_rec.url)
@@ -50,44 +60,156 @@ class ProcessedRequests(Base):
             self.parse_to(qs)
             self.parse_modes(qs)
             self.parse_companies(qs)
+            self.apply_filters(raw_rec.url)
         except:
-            self.filter_request = True
+            self.filter_request = -111
+            log.debug("couldn't parse " + raw_rec.url)
+
+    def apply_filters(self, url, fltval=-222):
+        """ filter out uptime test urls, etc... """
+        if self.filter_request is None:
+            if 'fromPlace=PDX' in url and ('toPlace=ZOO' in url or 'toPlace=SW%20Zoo%20Rd' in url):
+                self.filter_request = fltval
+            if 'fromPlace=Oregon+Zoo' in url and 'toPlace=2730+NW+Vaughn' in url:
+                self.filter_request = fltval + 1
+            if '=4001+SW+Canyon+Rd' in url and '=2730+NW+Vaughn' in url:
+                self.filter_request = fltval + 2
+            if 'fromPlace=45.456406%2C-122.579269' in url and 'toPlace=16380+Boones+Ferry' in url:
+                self.filter_request = fltval + 3
+            if 'fromPlace=SE+82nd+%26+Johnson+Cr' in url and 'toPlace=45.513954%2C-122.679634' in url:
+                self.filter_request = fltval + 4
+            if 'fromPlace=1230%20NW%2012TH' in url and 'toPlace=MULTNOMAH%20ATHLETIC%20CLUB' in url:
+                self.filter_request = fltval + 5
+            if 'fromPlace=S+River+Pkwy' in url and 'toPlace=Gateway+Transit+Center' in url:
+                self.filter_request = fltval + 6
+            if "OLD" in self.app_name:
+                if self.modes == "WALK_ONLY":
+                    # note: OLD planner WALK_ONLY trips are mostly (totally) robots (i.e., search engine and Knowlege AI junk)
+                    # better solution would be relating OLD app 'proxy' trips to original traffic and looking at referrer 
+                    self.filter_request = fltval + 7
+                """"""
+                if '=NE%20Sandy%20%26%2044th' in url:
+                    self.filter_request = fltval + 8
+                if 'Block%20NE%20Gertz%20Rd' in url:
+                    self.filter_request = fltval + 9
+                if '=N%20Kilpatrick%20%26%20Denver' in url:
+                    self.filter_request = fltval + 10
+                if '=N%20Marine%20%26%20Anchor' in url:
+                    self.filter_request = fltval + 11
+                if '=N%20Hayden%20Meadows%20Dr%20%26%20' in url or '%20%26%20Hayden%20Meadows' in url:
+                    self.filter_request = fltval + 12
+                if '=SW%20Patton%20%26%20' in url:
+                    self.filter_request = fltval + 13
+                if '=NE%20Dekum%20%26%20' in url:
+                    self.filter_request = fltval + 14
+                if '=NE%20Alberta%20%26%202' in url or '=NE%2027th%20%26%20Alberta' in url:
+                    self.filter_request = fltval + 15
+                if '=NE%2033rd%20%26%20Emerson' in url or '=NE%2033rd%20%26%20Siskiyou' in url:
+                    self.filter_request = fltval + 16
+                if '=NE%20Sandy%20%26%20' in url:
+                    self.filter_request = fltval + 17
+                if '=Delta%20Park/Vanport' in url or '=N%20Union%20Ct%20%26%20East%20Delta%20Park%20Entrance' in url:
+                    self.filter_request = fltval + 18
+                if '=NE%2042nd%20%26%20' in url:
+                    self.filter_request = fltval + 19
+                if '=NE%20122nd%20%26%20' in url or '=SE%20122nd%20%26%20' in url:
+                    self.filter_request = fltval + 20
+                if '=1300%20Block%20SE%20122nd' in url or '=SE%20Stark%20%26%20122nd' in url:
+                    self.filter_request = fltval + 21
+                if '=NE%2027th%20%26%20' in url or '%20%26%2027th' in url:
+                    self.filter_request = fltval + 22
+                if '=NE%20Halsey%20%26%20' in url:
+                    self.filter_request = fltval + 23
+                if '=NE%2015th%20%26%20' in url:
+                    self.filter_request = fltval + 24
+                if '=E%20Burnside%20%26%20NE%20' in url:
+                    self.filter_request = fltval + 25
+                if '=SE%2050th%20%26%20' in url or '=SE%2060th%20%26%20' in url:
+                    self.filter_request = fltval + 26
+                if '=SE%20Yamhill%20%26%20' in url:
+                    self.filter_request = fltval + 27
+                """"""
+            if self.app_name == TEST_SYSTEM:
+                self.filter_request = fltval + 55
 
     @classmethod
-    def get_app_name(cls, referer, browser = None, def_val = "Homepage (trimet.org)"):
+    def get_app_name(cls, rec, def_val="no idea what app..."):
         """ trimet specific -- override me for other agencies / uses """
         app_name = def_val
-        if len(referer) > 3:
+
+        tora = "TORA (trimet.org)"
+        call = "CALL (call.trimet.org)"
+        imap = "MAP (maps.trimet.org)"
+        mob = "MOBILITY MAP (mobilitymap.trimet.org)"
+        mod = "MOD (newplanner.trimet.org)"
+        api = "API (developer.trimet.org)"
+        old = "OLD (trimet.org planner)"
+        oldtxt = "OLD (text planner)"
+        pdxbus = "API - PDXBus (developer.trimet.org)"
+        pdxtransit = "API - PDXTransit (developer.trimet.org)"
+        test = "UPTIME TEST"
+
+        if len(rec.referer) > 3:
+            referer = rec.referer.lower()
             if 'call-test' in referer or 'test.trimet' in referer:
                 app_name = TEST_SYSTEM
             elif 'call' in referer:
-                app_name = "CALL (call.trimet.org)"
+                app_name = call
             elif 'newplanner' in referer or 'betaplanner' in referer:
-                app_name = "MOD (newplanner.trimet.org)"
-            elif 'labs' in referer or 'beta' in referer:
-                app_name = "TORA (new trimet.org)"
+                app_name = mod
             elif 'maps.trimet' in referer or 'ride' in referer:
-                app_name = "iMap (ride.trimet.org)"
+                app_name = imap
             elif 'mobilitymap' in referer:
-                app_name = "Mobility Map (mobilitymap.trimet.org)"
-            elif 'trimet' in referer:
-                app_name = def_val
+                app_name = mob
+            elif 'labs' in referer or 'beta' in referer:
+                app_name = tora
 
-        if browser and len(browser) > 3:
-            if 'Java' in browser:
-                app_name = "API (developer.trimet.org)"
-            elif 'pdx%20bus' in browser.lower():
-                app_name = "PDX Bus (developer.trimet.org)"
-            elif 'trimet' in browser:
-                app_name = def_val
+        if utils.is_mod_planner(rec.url):
+            app_name = tora
+        elif utils.is_old_text_planner(rec.url):
+            app_name = oldtxt
+        elif utils.is_old_trimet(rec.url):
+            app_name = old
+
+        if rec.browser and len(rec.browser) > 3:
+            browser = rec.browser.lower()
+            if 'java' in browser:
+                app_name = api
+            if 'python' in browser and utils.is_pdx_zoo(rec.url):
+                app_name = test
+            if 'pdx%20bus' in browser:
+                app_name = pdxbus
+            if 'pdx%20tran' in browser:
+                app_name = pdxtransit
+
+        if utils.is_developer_api(rec.url):
+            rec.is_api = True
+            if app_name is def_val:
+                app_name = api 
 
         return app_name
 
     def parse_from(self, qs):
-        self.from_lat_lon = utils.just_lat_lon(qs.get('fromPlace')[0])
+        ret_val = True
+        lat,lon = utils.just_lat_lon(qs.get('fromPlace')[0])
+        if utils.is_valid_lat_lon(lat, lon):
+            self.from_lat = lat
+            self.from_lon = lon
+        else:        
+            self.filter_request = -333
+            ret_val = False
+        return ret_val
 
     def parse_to(self, qs):
-        self.to_lat_lon = utils.just_lat_lon(qs.get('toPlace')[0])
+        ret_val = True
+        lat,lon = utils.just_lat_lon(qs.get('toPlace')[0])
+        if utils.is_valid_lat_lon(lat, lon):
+            self.to_lat = lat
+            self.to_lon = lon
+        else:        
+            self.filter_request = -333
+            ret_val = False
+        return ret_val
 
     def parse_modes(self, qs):
         """
@@ -131,8 +253,8 @@ class ProcessedRequests(Base):
 
     def parse_companies(self, qs):
         self.companies = qs.get('companies', [None])[0]
-        if self.companies:
-            self.companies = self.companies.strip("NaN")
+        if self.companies and self.companies == "NaN":
+            self.companies = None
 
     @classmethod
     def process(cls, session, chunk_size=10000):
@@ -158,20 +280,51 @@ class ProcessedRequests(Base):
 
                 # step 2c: save off the any remaining data from the last 'chunk'
                 ProcessedRequests.persist_data(session, processed)
+
+                # step 3: dedup requests -- batch into buck of requests by user, then compare URLs for 'sameness'
+                #import pdb; pdb.set_trace()
+                n = session.query(ProcessedRequests.ip_hash,  func.count(ProcessedRequests.ip_hash).label("count")).group_by(ProcessedRequests.ip_hash).all()
+                for i in n:
+                    if i.count > 1:
+                        nreqs = session.query(ProcessedRequests).filter(ProcessedRequests.ip_hash == i.ip_hash).all()
+                        for m, r in enumerate(nreqs):
+                            if r.filter_request is not None:
+                                continue
+                            z = m+1
+                            while z < len(nreqs):
+                                l = nreqs[z]
+                                if l and l.filter_request is None and l.log.url == r.log.url:
+                                    # print(r)
+                                    l.filter_request = r.log_id
+                                z += 1
+                        session.commit()
         except Exception as e:
             log.exception(e)
 
     def to_csv_dict(self):
+        """
+            defines the .csv output format
+            # todo (adds):
+                - dedup count
+                - request datetime
+                - ???
+        """
+        ua = utils.clean_useragent(self.log.browser)
+        browser = utils.get_browser(ua)
+
         ret_val = {
             'ip_hash': self.ip_hash,
             'app_name': self.app_name,
-            'url': self.log.url,
             'date': self.log.date,
+            'url': self.log.url,
             'modes': self.modes,
             'companies': self.companies,
-            'from': self.from_lat_lon,
-            'to': self.to_lat_lon
+            'from_lat': self.from_lat,
+            'from_lon': self.from_lon,
+            'to_lat': self.to_lat,
+            'to_lon': self.to_lon
         }
+        ret_val.update(browser)
         return ret_val
 
 

@@ -24,7 +24,6 @@ def from_log(file: os.PathLike, fmt: str):
 
 def parse_log_file(file: os.PathLike):
     ret_val = []
-
     fmt='{ip} - - [{apache_dt}] "{meth} {url} {http}" {code} {size} "{referer}" "{browser}"\n'
     for parsed_record in from_log(file, fmt):
         rec = parsed_record.named
@@ -32,10 +31,6 @@ def parse_log_file(file: os.PathLike):
             ret_val.append(rec)
 
     return ret_val
-
-
-def parse_companies(qs: dict):
-    companies = qs.get('companies', [None])[0]
 
 
 def parse_shared_modes(ret_val: dict, modes: str):

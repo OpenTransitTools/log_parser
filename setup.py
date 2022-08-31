@@ -1,5 +1,4 @@
 import os
-import sys
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -14,6 +13,8 @@ requires = [
     'boltons',
     'parse',
     'python-dateutil',
+    'user-agents',
+    'haversine',
     'ott.utils'
 ]
 
@@ -55,5 +56,6 @@ setup(
         publisher = ott.log_parser.control.publisher:main
         parser = ott.log_parser.control.parser:main
         report = ott.log_parser.control.reporter:main
+        stats = ott.log_parser.control.stats:main
     """,
 )
