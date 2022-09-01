@@ -16,7 +16,7 @@ class Stats(object):
     filtered_plans = 0
 
     def __init__(self, session):
-        self.requests = ProcessedRequests.query(session)
+        self.requests = session.query(ProcessedRequests).all()
         for r in self.requests:
             if r.app_name in self.app_counts:
                 c = self.app_counts[r.app_name]

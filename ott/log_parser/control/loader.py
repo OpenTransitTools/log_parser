@@ -37,8 +37,8 @@ def loader():
 
 def load_and_post_process():
     loader()
-    session = utils.make_session(False)
-    ProcessedRequests.process(session)
+    ProcessedRequests.process()
+    ProcessedRequests.post_process()
 
 
 def main():

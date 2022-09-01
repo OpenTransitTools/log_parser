@@ -1,5 +1,6 @@
 from ast import Return
 import imp
+from re import S
 from sqlalchemy import Column, String, Boolean, Integer, Float, func, and_
 from sqlalchemy.orm import relationship
 
@@ -87,48 +88,6 @@ class ProcessedRequests(Base):
                     # note: OLD planner WALK_ONLY trips are mostly (totally) robots (i.e., search engine and Knowlege AI junk)
                     # better solution would be relating OLD app 'proxy' trips to original traffic and looking at referrer 
                     self.filter_request = fltval + 7
-                """"""
-                if '=NE%20Sandy%20%26%2044th' in url:
-                    self.filter_request = fltval + 8
-                if 'Block%20NE%20Gertz%20Rd' in url:
-                    self.filter_request = fltval + 9
-                if '=N%20Kilpatrick%20%26%20Denver' in url:
-                    self.filter_request = fltval + 10
-                if '=N%20Marine%20%26%20Anchor' in url:
-                    self.filter_request = fltval + 11
-                if '=N%20Hayden%20Meadows%20Dr%20%26%20' in url or '%20%26%20Hayden%20Meadows' in url:
-                    self.filter_request = fltval + 12
-                if '=SW%20Patton%20%26%20' in url:
-                    self.filter_request = fltval + 13
-                if '=NE%20Dekum%20%26%20' in url:
-                    self.filter_request = fltval + 14
-                if '=NE%20Alberta%20%26%202' in url or '=NE%2027th%20%26%20Alberta' in url:
-                    self.filter_request = fltval + 15
-                if '=NE%2033rd%20%26%20Emerson' in url or '=NE%2033rd%20%26%20Siskiyou' in url:
-                    self.filter_request = fltval + 16
-                if '=NE%20Sandy%20%26%20' in url:
-                    self.filter_request = fltval + 17
-                if '=Delta%20Park/Vanport' in url or '=N%20Union%20Ct%20%26%20East%20Delta%20Park%20Entrance' in url:
-                    self.filter_request = fltval + 18
-                if '=NE%2042nd%20%26%20' in url:
-                    self.filter_request = fltval + 19
-                if '=NE%20122nd%20%26%20' in url or '=SE%20122nd%20%26%20' in url:
-                    self.filter_request = fltval + 20
-                if '=1300%20Block%20SE%20122nd' in url or '=SE%20Stark%20%26%20122nd' in url:
-                    self.filter_request = fltval + 21
-                if '=NE%2027th%20%26%20' in url or '%20%26%2027th' in url:
-                    self.filter_request = fltval + 22
-                if '=NE%20Halsey%20%26%20' in url:
-                    self.filter_request = fltval + 23
-                if '=NE%2015th%20%26%20' in url:
-                    self.filter_request = fltval + 24
-                if '=E%20Burnside%20%26%20NE%20' in url:
-                    self.filter_request = fltval + 25
-                if '=SE%2050th%20%26%20' in url or '=SE%2060th%20%26%20' in url:
-                    self.filter_request = fltval + 26
-                if '=SE%20Yamhill%20%26%20' in url:
-                    self.filter_request = fltval + 27
-                """"""
             if self.app_name == TEST_SYSTEM:
                 self.filter_request = fltval + 55
 
@@ -256,51 +215,6 @@ class ProcessedRequests(Base):
         if self.companies and self.companies == "NaN":
             self.companies = None
 
-    @classmethod
-    def process(cls, session, chunk_size=10000):
-        """
-        will post-process
-        """
-        # import pdb; pdb.set_trace()
-        try:
-            logs = RawLog.query(session)
-            if logs and len(logs) > 0:
-                # step 1: clear out processed table
-                ProcessedRequests.clear_table(session)
-
-                # step 2: loop thru raw log file entries
-                processed = []
-                for l in logs:
-                    p = ProcessedRequests(l)
-                    processed.append(p)
-                    # step 2b: save off the post-process data in 'chunks'
-                    if len(processed) > chunk_size:
-                        ProcessedRequests.persist_data(session, processed)
-                        processed = []
-
-                # step 2c: save off the any remaining data from the last 'chunk'
-                ProcessedRequests.persist_data(session, processed)
-
-                # step 3: dedup requests -- batch into buck of requests by user, then compare URLs for 'sameness'
-                #import pdb; pdb.set_trace()
-                n = session.query(ProcessedRequests.ip_hash,  func.count(ProcessedRequests.ip_hash).label("count")).group_by(ProcessedRequests.ip_hash).all()
-                for i in n:
-                    if i.count > 1:
-                        nreqs = session.query(ProcessedRequests).filter(ProcessedRequests.ip_hash == i.ip_hash).all()
-                        for m, r in enumerate(nreqs):
-                            if r.filter_request is not None:
-                                continue
-                            z = m+1
-                            while z < len(nreqs):
-                                l = nreqs[z]
-                                if l and l.filter_request is None and l.log.url == r.log.url:
-                                    # print(r)
-                                    l.filter_request = r.log_id
-                                z += 1
-                        session.commit()
-        except Exception as e:
-            log.exception(e)
-
     def to_csv_dict(self):
         """
             defines the .csv output format
@@ -327,12 +241,116 @@ class ProcessedRequests(Base):
         ret_val.update(browser)
         return ret_val
 
+    @classmethod
+    def process(cls, chunk_size=10000):
+        """
+        process logs from log file(s)
+        """
+        # import pdb; pdb.set_trace()
+        session = utils.make_session(False)
+        try:
+            logs = RawLog.query(session)
+            if logs and len(logs) > 0:
+                # step 1: clear out processed table
+                ProcessedRequests.clear_table(session)
+
+                # step 2: loop thru raw log file entries
+                processed = []
+                for l in logs:
+                    p = ProcessedRequests(l)
+                    processed.append(p)
+                    # step 2b: save off the post-process data in 'chunks'
+                    if len(processed) > chunk_size:
+                        ProcessedRequests.persist_data(session, processed)
+                        processed = []
+
+                # step 2c: save off the any remaining data from the last 'chunk'
+                ProcessedRequests.persist_data(session, processed)
+
+            session.commit()
+        except Exception as e:
+            log.exception(e)
+
+    @classmethod
+    def post_process(cls):
+        """
+        post process log junk
+        """
+        # import pdb; pdb.set_trace()
+        session = utils.make_session(False)
+        cls.dedupe(session)
+        cls.filter_repeated_bot_requests(session)
+
+    @classmethod
+    def dedupe(cls, session):
+        try:
+            # step 1: dedup requests -- batch into buck of requests by user, then compare URLs for 'sameness'
+            #import pdb; pdb.set_trace()
+            n = session.query(ProcessedRequests.ip_hash,  func.count(ProcessedRequests.ip_hash).label("count")).group_by(ProcessedRequests.ip_hash).all()
+            for i in n:
+                if i.count > 1:
+                    nreqs = session.query(ProcessedRequests).filter(ProcessedRequests.ip_hash == i.ip_hash).all()
+                    for m, r in enumerate(nreqs):
+                        if r.filter_request is not None:
+                            continue
+                        z = m+1
+                        while z < len(nreqs):
+                            l = nreqs[z]
+                            if l and l.filter_request is None and l.log.url == r.log.url:
+                                # print(r)
+                                l.filter_request = r.log_id
+                            z += 1
+                    session.commit()
+        except Exception as e:
+            log.exception(e)
+
+    @classmethod
+    def filter_repeated_bot_requests(cls, session, threshold=10, filter_val=-400):
+        """
+        OLD planner gets hit hard by random indexing and other bot queries
+        """
+        cache = {}
+
+        def cache_hits(req):
+            try:
+                qs = utils.get_url_qs(req.log.url)
+                f = utils.just_name_of_ncoord(qs.get('fromPlace')[0])
+                t = utils.just_name_of_ncoord(qs.get('toPlace')[0])
+                if f not in cache: cache[f] = [];
+                if t not in cache: cache[t] = [];
+                cache[f].append(req)
+                cache[t].append(req)
+            except Exception as e:
+                log.debug(e)
+
+        def set_filters(indx):
+            try:
+                if len(cache[indx]) >= threshold:
+                    #print("{} = {}".format(c, len(cache[indx])))
+                    for r in cache[indx]:
+                        r.filter_request = filter_val
+                        pass
+            except Exception as e:
+                log.debug(e)
+
+        try:
+            requests = session.query(ProcessedRequests).filter(ProcessedRequests.app_name.like('%OLD%')).filter(ProcessedRequests.filter_request == None).all()
+            for r in requests:
+                cache_hits(r)
+
+            for c in cache:
+                set_filters(c)
+
+            session.commit()
+        except Exception as e:
+            log.debug(e)
+
 
 def main():
     from .raw_log import main as raw_load
     raw_load()
-    session = utils.make_session(False)
-    ProcessedRequests.process(session)
+    ProcessedRequests.process()
+    ProcessedRequests.post_process()
 
 
 if __name__ == "__main__":

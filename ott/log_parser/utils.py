@@ -1,6 +1,7 @@
 from email.policy import default
 import hmac
 import hashlib
+from tkinter.messagebox import NO
 from tokenize import Number
 import urllib
 from dateutil import parser as dateutil_parser
@@ -169,6 +170,20 @@ def cmd_line_loader(prog_name='log_parser/bin/loader', sub_dirs=["maps8", "maps9
     if len(files) == 0:
         files = file_utils.find_files(cmdline.log_directory, cmdline.files, True, sub_dirs)
     return files, cmdline
+
+
+def just_name_of_ncoord(named_coord, def_val=None):
+    ret_val = def_val
+    try:
+        s = named_coord
+        if "::" in named_coord:
+            s = named_coord.split("::")[0]
+
+        if s and len(s) > 0:
+            ret_val = s
+    except Exception as e:
+        log.debug(e)
+    return ret_val
 
 
 def just_lat_lon(named_coord):
