@@ -327,7 +327,8 @@ class ProcessedRequests(Base):
             try:
                 if len(cache[indx]) >= threshold:
                     #print("{} = {}".format(c, len(cache[indx])))
-                    for r in cache[indx]:
+                    for i, r in enumerate(cache[indx]):
+                        if i == 0: continue
                         r.filter_request = filter_val
                         pass
             except Exception as e:
