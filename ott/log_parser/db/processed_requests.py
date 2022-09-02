@@ -84,10 +84,12 @@ class ProcessedRequests(Base):
             if 'fromPlace=S+River+Pkwy' in url and 'toPlace=Gateway+Transit+Center' in url:
                 self.filter_request = fltval + 6
             if "OLD" in self.app_name:
-                if self.modes == "WALK_ONLY":
-                    # note: OLD planner WALK_ONLY trips are mostly (totally) robots (i.e., search engine and Knowlege AI junk)
-                    # better solution would be relating OLD app 'proxy' trips to original traffic and looking at referrer 
+                if self.modes == "WALK_ONLY" and '%20%26%20' in self.log.url:
+                    # note: OLD planner WALK_ONLY trips using 'intersections' are mostly (totally) robots (i.e., search 
+                    # engine and Knowlege AI junk). Better solution would be relating OLD app 'proxy' trips to original
+                    # traffic and looking at referrer, but that's a TODO item... 
                     self.filter_request = fltval + 7
+                    pass
             if self.app_name == TEST_SYSTEM:
                 self.filter_request = fltval + 55
 
