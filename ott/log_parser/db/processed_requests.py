@@ -310,7 +310,6 @@ class ProcessedRequests(Base):
     def filter_repeated_bot_requests(cls, session, threshold=30, filter_val=-400):
         """
         OLD planner gets hit hard by random indexing and other bot queries
-        TODO: this is not used (Sept 2, 2022) ... too aggro filtering junk
         """
         cache = {}
 
@@ -334,7 +333,7 @@ class ProcessedRequests(Base):
                 if len(cache[indx]) >= threshold:
                     #print("{} = {}".format(c, len(cache[indx])))
                     for i, r in enumerate(cache[indx]):
-                        if i <= threshold and i%2 == 0: continue
+                        if i == 1: continue # don't mark first record
                         r.filter_request = filter_val
                         pass
             except Exception as e:
