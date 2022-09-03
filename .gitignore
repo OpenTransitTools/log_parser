@@ -5,6 +5,7 @@ US*geojson
 vendor*
 .eggs
 .token
+[a-z]
 [a-z].py
 [a-z].*json
 segments.geojson
@@ -27,9 +28,6 @@ nohup.out
 *~
 *.DS_*
 *.bak
-x
-o
-n
 ?.tar
 test.geojson
 

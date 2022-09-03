@@ -1,7 +1,7 @@
 LOG_DIR=${1:-"/srv/urbanlogiq/old-logs"}
 FILES=`ls ${LOG_DIR}/maps9/acc*`
 PROC_DIR=${2:-"~/var/otp_trips"}
-CACHE_DIR=${3:-"$PROC_DIR_transfered"}
+CACHE_DIR=${3:-"${PROC_DIR}_transferred"}
 LOAD_DIR=${4:-"./x"}
 
 cmd="mkdir -p $LOAD_DIR/maps8 $LOAD_DIR/maps9 $LOAD_DIR/maps10"
@@ -35,7 +35,6 @@ do
 
   run_cmd "mv trip_requests.csv $PROC_DIR/${fdt}_trips.csv"
   run_cmd "~/bin/upload_to_urbanlogiq sync"  
-  run_cmd "mv stats $CACHE_DIR/${fdt}_stats.txt"
+  run_cmd "mv stats.txt $CACHE_DIR/${fdt}_stats.txt"
   echo
-  exit
 done

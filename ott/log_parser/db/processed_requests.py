@@ -281,7 +281,7 @@ class ProcessedRequests(Base):
         # import pdb; pdb.set_trace()
         session = utils.make_session(False)
         cls.dedupe(session)
-        cls.filter_repeated_bot_requests(session)
+        #cls.filter_repeated_bot_requests(session) # NOTE: turned off 9/22 -- too aggro filtering trips
 
     @classmethod
     def dedupe(cls, session):
@@ -307,17 +307,21 @@ class ProcessedRequests(Base):
             log.exception(e)
 
     @classmethod
-    def filter_repeated_bot_requests(cls, session, threshold=10, filter_val=-400):
+    def filter_repeated_bot_requests(cls, session, threshold=20, filter_val=-400):
         """
         OLD planner gets hit hard by random indexing and other bot queries
+        TODO: this is not used (Sept 2, 2022) ... too aggro filtering junk
         """
         cache = {}
 
         def cache_hits(req):
             try:
                 qs = utils.get_url_qs(req.log.url)
-                f = utils.just_name_of_ncoord(qs.get('fromPlace')[0])
-                t = utils.just_name_of_ncoord(qs.get('toPlace')[0])
+                #f = utils.just_name_of_ncoord(qs.get('fromPlace')[0])
+                #t = utils.just_name_of_ncoord(qs.get('toPlace')[0])
+                f = qs.get('fromPlace')[0]
+                t = qs.get('toPlace')[0]
+
                 if f not in cache: cache[f] = [];
                 if t not in cache: cache[t] = [];
                 cache[f].append(req)
@@ -330,7 +334,7 @@ class ProcessedRequests(Base):
                 if len(cache[indx]) >= threshold:
                     #print("{} = {}".format(c, len(cache[indx])))
                     for i, r in enumerate(cache[indx]):
-                        if i == 0: continue
+                        if i <= threshold and i%2 == 0: continue
                         r.filter_request = filter_val
                         pass
             except Exception as e:
