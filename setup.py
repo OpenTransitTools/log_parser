@@ -55,6 +55,7 @@ setup(
         load_and_post_process = ott.log_parser.control.loader:load_and_post_process
         publisher = ott.log_parser.control.publisher:main
         parser = ott.log_parser.control.parser:main
+        parser_modsec_test = ott.log_parser.control.parser_modsec:simple_test
         report = ott.log_parser.control.reporter:main
         stats = ott.log_parser.control.stats:main
     """,

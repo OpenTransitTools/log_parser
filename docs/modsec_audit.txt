@@ -1,0 +1,398 @@
+--9e7b8365-A--
+[10/Aug/2025:15:39:41 --0700] aJkfrKwZZuAAACiTC0wAAAAR 172.25.90.86 55986 172.25.102.224 443
+--9e7b8365-B--
+POST /rtp/gtfs/v1 HTTP/1.1
+Host: maps8.trimet.org
+Connection: keep-alive
+Content-Length: 6412
+sec-ch-ua-platform: "Windows"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+sec-ch-ua: "Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"
+Content-Type: application/json
+sec-ch-ua-mobile: ?0
+Accept: */*
+Origin: https://labs-5.trimet.org
+Sec-Fetch-Site: same-site
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: https://labs-5.trimet.org/
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+--9e7b8365-C--
+{"query":"\n  query Plan(\n    $allowedVehicleRentalNetworks: [String],\n    $arriveBy: Boolean,\n    $banned: InputBanned,\n    $bikeReluctance: Float,\n    $bikeSpeed: Float,\n    $carReluctance: Float,\n    $date: String,\n    $fromPlace: String!,\n    $modes: [TransportMode],\n    $searchWindow: Long,\n    $time: String,\n    $toPlace: String!,\n    $walkReluctance: Float,\n    $walkSpeed: Float\n  ) {\n  plan(\n    allowedVehicleRentalNetworks: $allowedVehicleRentalNetworks\n    arriveBy: $arriveBy\n    banned: $banned\n    bikeReluctance: $bikeReluctance\n    bikeSpeed: $bikeSpeed\n    carReluctance: $carReluctance\n    date: $date\n    fromPlace: $fromPlace\n    locale: \"en\"\n    searchWindow: $searchWindow\n    time: $time\n    toPlace: $toPlace\n    transportModes: $modes\n    walkReluctance: $walkReluctance\n    walkSpeed: $walkSpeed\n  ) {\n    itineraries {\n      accessibilityScore\n      walkTime\n      walkDistance\n      duration\n      endTime\n      legs {\n        accessibilityScore\n        agency {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          gtfsId\n          id: gtfsId\n          name\n          timezone\n          url\n        }\n        alerts {\n          alertDescriptionText\n          alertHeaderText\n          alertUrl\n          effectiveStartDate\n          id\n        }\n        arrivalDelay\n        departureDelay\n        distance\n        dropOffBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        dropoffType\n        duration\n        endTime\n        fareProducts {\n          id\n          product {\n            __typename\n            id\n            medium {\n              id\n              name\n            }\n            name\n            riderCategory {\n              id\n              name\n            }\n            ... on DefaultFareProduct {\n              price {\n                amount\n                currency {\n                  code\n                  digits\n                }\n              }\n            }\n          }\n        }\n        from {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        headsign\n        interlineWithPreviousLeg\n        intermediateStops {\n          lat\n          locationType\n          lon\n          name\n          stopCode: code\n          stopId: id\n        }\n        legGeometry {\n          length\n          points\n        }\n        mode\n        pickupBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        pickupType\n        realTime\n        realtimeState\n        rentedBike\n        rideHailingEstimate {\n          arrival\n          maxPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          minPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          provider {\n            id\n          }\n        }\n        route {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          color\n          gtfsId\n          id: gtfsId\n          longName\n          shortName\n          textColor\n          type\n        }\n        startTime\n        steps {\n          absoluteDirection\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          area\n          distance\n          elevationProfile {\n            distance\n            elevation\n          }\n          lat\n          lon\n          relativeDirection\n          stayOn\n          streetName\n        }\n        to {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        transitLeg\n        trip {\n          arrivalStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          departureStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          gtfsId\n          id\n        }\n      }\n      startTime\n      transfers: numberOfTransfers\n      waitingTime\n      walkTime\n    }\n    routingErrors {\n      code\n      description\n      inputField\n    }\n  }\n}\n","variables":{"date":"2025-08-10","time":"15:23","fromPlace":"SW Alder & 14th::45.521764017865,-122.686053248257","toPlace":"714 NW Glisan Street, Portland::45.52637837993413,-122.67800928131153::Oregon","arriveBy":false,"modes":[{"mode":"BUS"},{"mode":"TRAM"},{"mode":"RAIL"},{"mode":"GONDOLA"}],"searchWindow":2400,"banned":{},"walkReluctance":4,"walkSpeed":1.34}}
+--9e7b8365-F--
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Vary: Accept,Accept-Encoding,Accept-Language,User-Agent
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: false
+Content-Type: application/json
+Cache-Control: max-age=0
+Expires: Sun, 10 Aug 2025 22:39:40 GMT
+X-Robots-Tag: noindex, nofollow
+Keep-Alive: timeout=3, max=100
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+
+--9e7b8365-H--
+Message: Warning. Pattern match "POST" at REQUEST_METHOD. [file "/etc/httpd/conf.d/mod_security.conf"] [line "25"] [id "1000"]
+Apache-Handler: proxy-server
+Stopwatch: 1754865580584814 516912 (- - -)
+Stopwatch2: 1754865580584814 516912; combined=201, p1=10, p2=181, p3=1, p4=1, p5=8, sr=0, sw=0, l=0, gc=0
+Producer: ModSecurity for Apache/2.7.3 (http://www.modsecurity.org/).
+Server: Apache
+Engine-Mode: "ENABLED"
+
+--9e7b8365-Z--
+
+--9e7b8365-A--
+[10/Aug/2025:15:39:41 --0700] aJkfrKwZZuAAACiSCv8AAAAQ 172.25.90.86 55970 172.25.102.224 443
+--9e7b8365-B--
+POST /rtp/gtfs/v1 HTTP/1.1
+Host: maps8.trimet.org
+Connection: keep-alive
+Content-Length: 6412
+sec-ch-ua-platform: "Windows"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+sec-ch-ua: "Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"
+Content-Type: application/json
+sec-ch-ua-mobile: ?0
+Accept: */*
+Origin: https://labs-5.trimet.org
+Sec-Fetch-Site: same-site
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: https://labs-5.trimet.org/
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+--9e7b8365-C--
+{"query":"\n  query Plan(\n    $allowedVehicleRentalNetworks: [String],\n    $arriveBy: Boolean,\n    $banned: InputBanned,\n    $bikeReluctance: Float,\n    $bikeSpeed: Float,\n    $carReluctance: Float,\n    $date: String,\n    $fromPlace: String!,\n    $modes: [TransportMode],\n    $searchWindow: Long,\n    $time: String,\n    $toPlace: String!,\n    $walkReluctance: Float,\n    $walkSpeed: Float\n  ) {\n  plan(\n    allowedVehicleRentalNetworks: $allowedVehicleRentalNetworks\n    arriveBy: $arriveBy\n    banned: $banned\n    bikeReluctance: $bikeReluctance\n    bikeSpeed: $bikeSpeed\n    carReluctance: $carReluctance\n    date: $date\n    fromPlace: $fromPlace\n    locale: \"en\"\n    searchWindow: $searchWindow\n    time: $time\n    toPlace: $toPlace\n    transportModes: $modes\n    walkReluctance: $walkReluctance\n    walkSpeed: $walkSpeed\n  ) {\n    itineraries {\n      accessibilityScore\n      walkTime\n      walkDistance\n      duration\n      endTime\n      legs {\n        accessibilityScore\n        agency {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          gtfsId\n          id: gtfsId\n          name\n          timezone\n          url\n        }\n        alerts {\n          alertDescriptionText\n          alertHeaderText\n          alertUrl\n          effectiveStartDate\n          id\n        }\n        arrivalDelay\n        departureDelay\n        distance\n        dropOffBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        dropoffType\n        duration\n        endTime\n        fareProducts {\n          id\n          product {\n            __typename\n            id\n            medium {\n              id\n              name\n            }\n            name\n            riderCategory {\n              id\n              name\n            }\n            ... on DefaultFareProduct {\n              price {\n                amount\n                currency {\n                  code\n                  digits\n                }\n              }\n            }\n          }\n        }\n        from {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        headsign\n        interlineWithPreviousLeg\n        intermediateStops {\n          lat\n          locationType\n          lon\n          name\n          stopCode: code\n          stopId: id\n        }\n        legGeometry {\n          length\n          points\n        }\n        mode\n        pickupBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        pickupType\n        realTime\n        realtimeState\n        rentedBike\n        rideHailingEstimate {\n          arrival\n          maxPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          minPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          provider {\n            id\n          }\n        }\n        route {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          color\n          gtfsId\n          id: gtfsId\n          longName\n          shortName\n          textColor\n          type\n        }\n        startTime\n        steps {\n          absoluteDirection\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          area\n          distance\n          elevationProfile {\n            distance\n            elevation\n          }\n          lat\n          lon\n          relativeDirection\n          stayOn\n          streetName\n        }\n        to {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        transitLeg\n        trip {\n          arrivalStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          departureStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          gtfsId\n          id\n        }\n      }\n      startTime\n      transfers: numberOfTransfers\n      waitingTime\n      walkTime\n    }\n    routingErrors {\n      code\n      description\n      inputField\n    }\n  }\n}\n","variables":{"date":"2025-08-10","time":"15:39","fromPlace":"SW Alder & 14th::45.521764017865,-122.686053248257","toPlace":"714 NW Glisan Street, Portland::45.52637837993413,-122.67800928131153::Oregon","arriveBy":false,"modes":[{"mode":"BUS"},{"mode":"TRAM"},{"mode":"RAIL"},{"mode":"GONDOLA"}],"searchWindow":2400,"banned":{},"walkReluctance":4,"walkSpeed":1.34}}
+--9e7b8365-F--
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Vary: Accept,Accept-Encoding,Accept-Language,User-Agent
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: false
+Content-Type: application/json
+Cache-Control: max-age=0
+Expires: Sun, 10 Aug 2025 22:39:40 GMT
+X-Robots-Tag: noindex, nofollow
+Keep-Alive: timeout=3, max=100
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+
+--9e7b8365-H--
+Message: Warning. Pattern match "POST" at REQUEST_METHOD. [file "/etc/httpd/conf.d/mod_security.conf"] [line "25"] [id "1000"]
+Apache-Handler: proxy-server
+Stopwatch: 1754865580585867 551516 (- - -)
+Stopwatch2: 1754865580585867 551516; combined=243, p1=12, p2=223, p3=1, p4=0, p5=7, sr=0, sw=0, l=0, gc=0
+Producer: ModSecurity for Apache/2.7.3 (http://www.modsecurity.org/).
+Server: Apache
+Engine-Mode: "ENABLED"
+
+--9e7b8365-Z--
+
+--bfe9e002-A--
+[10/Aug/2025:15:45:12 --0700] aJkg96wZZuAAACivFs0AAAAt 172.25.90.86 37428 172.25.102.224 443
+--bfe9e002-B--
+POST /rtp/gtfs/v1 HTTP/1.1
+Host: maps8.trimet.org
+Connection: keep-alive
+Content-Length: 6407
+sec-ch-ua-platform: "Windows"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+sec-ch-ua: "Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"
+Content-Type: application/json
+sec-ch-ua-mobile: ?0
+Accept: */*
+Origin: https://labs-5.trimet.org
+Sec-Fetch-Site: same-site
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: https://labs-5.trimet.org/
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+--bfe9e002-C--
+{"query":"\n  query Plan(\n    $allowedVehicleRentalNetworks: [String],\n    $arriveBy: Boolean,\n    $banned: InputBanned,\n    $bikeReluctance: Float,\n    $bikeSpeed: Float,\n    $carReluctance: Float,\n    $date: String,\n    $fromPlace: String!,\n    $modes: [TransportMode],\n    $searchWindow: Long,\n    $time: String,\n    $toPlace: String!,\n    $walkReluctance: Float,\n    $walkSpeed: Float\n  ) {\n  plan(\n    allowedVehicleRentalNetworks: $allowedVehicleRentalNetworks\n    arriveBy: $arriveBy\n    banned: $banned\n    bikeReluctance: $bikeReluctance\n    bikeSpeed: $bikeSpeed\n    carReluctance: $carReluctance\n    date: $date\n    fromPlace: $fromPlace\n    locale: \"en\"\n    searchWindow: $searchWindow\n    time: $time\n    toPlace: $toPlace\n    transportModes: $modes\n    walkReluctance: $walkReluctance\n    walkSpeed: $walkSpeed\n  ) {\n    itineraries {\n      accessibilityScore\n      walkTime\n      walkDistance\n      duration\n      endTime\n      legs {\n        accessibilityScore\n        agency {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          gtfsId\n          id: gtfsId\n          name\n          timezone\n          url\n        }\n        alerts {\n          alertDescriptionText\n          alertHeaderText\n          alertUrl\n          effectiveStartDate\n          id\n        }\n        arrivalDelay\n        departureDelay\n        distance\n        dropOffBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        dropoffType\n        duration\n        endTime\n        fareProducts {\n          id\n          product {\n            __typename\n            id\n            medium {\n              id\n              name\n            }\n            name\n            riderCategory {\n              id\n              name\n            }\n            ... on DefaultFareProduct {\n              price {\n                amount\n                currency {\n                  code\n                  digits\n                }\n              }\n            }\n          }\n        }\n        from {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        headsign\n        interlineWithPreviousLeg\n        intermediateStops {\n          lat\n          locationType\n          lon\n          name\n          stopCode: code\n          stopId: id\n        }\n        legGeometry {\n          length\n          points\n        }\n        mode\n        pickupBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        pickupType\n        realTime\n        realtimeState\n        rentedBike\n        rideHailingEstimate {\n          arrival\n          maxPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          minPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          provider {\n            id\n          }\n        }\n        route {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          color\n          gtfsId\n          id: gtfsId\n          longName\n          shortName\n          textColor\n          type\n        }\n        startTime\n        steps {\n          absoluteDirection\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          area\n          distance\n          elevationProfile {\n            distance\n            elevation\n          }\n          lat\n          lon\n          relativeDirection\n          stayOn\n          streetName\n        }\n        to {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        transitLeg\n        trip {\n          arrivalStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          departureStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          gtfsId\n          id\n        }\n      }\n      startTime\n      transfers: numberOfTransfers\n      waitingTime\n      walkTime\n    }\n    routingErrors {\n      code\n      description\n      inputField\n    }\n  }\n}\n","variables":{"date":"2025-08-10","time":"15:45","fromPlace":"SW Alder & 14th::45.521764017865,-122.686053248257","toPlace":"232 NW 6th Ave, Portland::45.525162980572475,-122.67665028099222::Oregon","arriveBy":false,"modes":[{"mode":"BUS"},{"mode":"TRAM"},{"mode":"RAIL"},{"mode":"GONDOLA"}],"searchWindow":2400,"banned":{},"walkReluctance":4,"walkSpeed":1.34}}
+--bfe9e002-F--
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Vary: Accept,Accept-Encoding,Accept-Language,User-Agent
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: false
+Content-Type: application/json
+Cache-Control: max-age=0
+Expires: Sun, 10 Aug 2025 22:45:11 GMT
+X-Robots-Tag: noindex, nofollow
+Keep-Alive: timeout=3, max=100
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+
+--bfe9e002-H--
+Message: Warning. Pattern match "POST" at REQUEST_METHOD. [file "/etc/httpd/conf.d/mod_security.conf"] [line "25"] [id "1000"]
+Apache-Handler: proxy-server
+Stopwatch: 1754865911649725 497296 (- - -)
+Stopwatch2: 1754865911649725 497296; combined=171, p1=2, p2=157, p3=2, p4=1, p5=9, sr=0, sw=0, l=0, gc=0
+Producer: ModSecurity for Apache/2.7.3 (http://www.modsecurity.org/).
+Server: Apache
+Engine-Mode: "ENABLED"
+
+--bfe9e002-Z--
+
+--bfe9e002-A--
+[10/Aug/2025:15:45:12 --0700] aJkg96wZZuAAACiwFyUAAAAu 172.25.90.86 37438 172.25.102.224 443
+--bfe9e002-B--
+POST /rtp/gtfs/v1 HTTP/1.1
+Host: maps8.trimet.org
+Connection: keep-alive
+Content-Length: 6407
+sec-ch-ua-platform: "Windows"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+sec-ch-ua: "Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"
+Content-Type: application/json
+sec-ch-ua-mobile: ?0
+Accept: */*
+Origin: https://labs-5.trimet.org
+Sec-Fetch-Site: same-site
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: https://labs-5.trimet.org/
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+--bfe9e002-C--
+{"query":"\n  query Plan(\n    $allowedVehicleRentalNetworks: [String],\n    $arriveBy: Boolean,\n    $banned: InputBanned,\n    $bikeReluctance: Float,\n    $bikeSpeed: Float,\n    $carReluctance: Float,\n    $date: String,\n    $fromPlace: String!,\n    $modes: [TransportMode],\n    $searchWindow: Long,\n    $time: String,\n    $toPlace: String!,\n    $walkReluctance: Float,\n    $walkSpeed: Float\n  ) {\n  plan(\n    allowedVehicleRentalNetworks: $allowedVehicleRentalNetworks\n    arriveBy: $arriveBy\n    banned: $banned\n    bikeReluctance: $bikeReluctance\n    bikeSpeed: $bikeSpeed\n    carReluctance: $carReluctance\n    date: $date\n    fromPlace: $fromPlace\n    locale: \"en\"\n    searchWindow: $searchWindow\n    time: $time\n    toPlace: $toPlace\n    transportModes: $modes\n    walkReluctance: $walkReluctance\n    walkSpeed: $walkSpeed\n  ) {\n    itineraries {\n      accessibilityScore\n      walkTime\n      walkDistance\n      duration\n      endTime\n      legs {\n        accessibilityScore\n        agency {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          gtfsId\n          id: gtfsId\n          name\n          timezone\n          url\n        }\n        alerts {\n          alertDescriptionText\n          alertHeaderText\n          alertUrl\n          effectiveStartDate\n          id\n        }\n        arrivalDelay\n        departureDelay\n        distance\n        dropOffBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        dropoffType\n        duration\n        endTime\n        fareProducts {\n          id\n          product {\n            __typename\n            id\n            medium {\n              id\n              name\n            }\n            name\n            riderCategory {\n              id\n              name\n            }\n            ... on DefaultFareProduct {\n              price {\n                amount\n                currency {\n                  code\n                  digits\n                }\n              }\n            }\n          }\n        }\n        from {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        headsign\n        interlineWithPreviousLeg\n        intermediateStops {\n          lat\n          locationType\n          lon\n          name\n          stopCode: code\n          stopId: id\n        }\n        legGeometry {\n          length\n          points\n        }\n        mode\n        pickupBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        pickupType\n        realTime\n        realtimeState\n        rentedBike\n        rideHailingEstimate {\n          arrival\n          maxPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          minPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          provider {\n            id\n          }\n        }\n        route {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          color\n          gtfsId\n          id: gtfsId\n          longName\n          shortName\n          textColor\n          type\n        }\n        startTime\n        steps {\n          absoluteDirection\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          area\n          distance\n          elevationProfile {\n            distance\n            elevation\n          }\n          lat\n          lon\n          relativeDirection\n          stayOn\n          streetName\n        }\n        to {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        transitLeg\n        trip {\n          arrivalStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          departureStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          gtfsId\n          id\n        }\n      }\n      startTime\n      transfers: numberOfTransfers\n      waitingTime\n      walkTime\n    }\n    routingErrors {\n      code\n      description\n      inputField\n    }\n  }\n}\n","variables":{"date":"2025-08-10","time":"15:39","fromPlace":"SW Alder & 14th::45.521764017865,-122.686053248257","toPlace":"232 NW 6th Ave, Portland::45.525162980572475,-122.67665028099222::Oregon","arriveBy":false,"modes":[{"mode":"BUS"},{"mode":"TRAM"},{"mode":"RAIL"},{"mode":"GONDOLA"}],"searchWindow":2400,"banned":{},"walkReluctance":4,"walkSpeed":1.34}}
+--bfe9e002-F--
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Vary: Accept,Accept-Encoding,Accept-Language,User-Agent
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: false
+Content-Type: application/json
+Cache-Control: max-age=0
+Expires: Sun, 10 Aug 2025 22:45:11 GMT
+X-Robots-Tag: noindex, nofollow
+Keep-Alive: timeout=3, max=100
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+
+--bfe9e002-H--
+Message: Warning. Pattern match "POST" at REQUEST_METHOD. [file "/etc/httpd/conf.d/mod_security.conf"] [line "25"] [id "1000"]
+Apache-Handler: proxy-server
+Stopwatch: 1754865911641726 515490 (- - -)
+Stopwatch2: 1754865911641726 515490; combined=157, p1=1, p2=144, p3=1, p4=1, p5=9, sr=0, sw=1, l=0, gc=0
+Producer: ModSecurity for Apache/2.7.3 (http://www.modsecurity.org/).
+Server: Apache
+Engine-Mode: "ENABLED"
+
+--bfe9e002-Z--
+
+--0381b42f-A--
+[10/Aug/2025:15:46:17 --0700] aJkhOKwZZuAAACiPCb0AAAAN 172.25.90.86 37984 172.25.102.224 443
+--0381b42f-B--
+POST /rtp/gtfs/v1 HTTP/1.1
+Host: maps8.trimet.org
+Connection: keep-alive
+Content-Length: 6525
+sec-ch-ua-platform: "Windows"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+sec-ch-ua: "Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"
+Content-Type: application/json
+sec-ch-ua-mobile: ?0
+Accept: */*
+Origin: https://labs-5.trimet.org
+Sec-Fetch-Site: same-site
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: https://labs-5.trimet.org/
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+--0381b42f-C--
+{"query":"\n  query Plan(\n    $allowedVehicleRentalNetworks: [String],\n    $arriveBy: Boolean,\n    $banned: InputBanned,\n    $bikeReluctance: Float,\n    $bikeSpeed: Float,\n    $carReluctance: Float,\n    $date: String,\n    $fromPlace: String!,\n    $modes: [TransportMode],\n    $searchWindow: Long,\n    $time: String,\n    $toPlace: String!,\n    $walkReluctance: Float,\n    $walkSpeed: Float\n  ) {\n  plan(\n    allowedVehicleRentalNetworks: $allowedVehicleRentalNetworks\n    arriveBy: $arriveBy\n    banned: $banned\n    bikeReluctance: $bikeReluctance\n    bikeSpeed: $bikeSpeed\n    carReluctance: $carReluctance\n    date: $date\n    fromPlace: $fromPlace\n    locale: \"en\"\n    searchWindow: $searchWindow\n    time: $time\n    toPlace: $toPlace\n    transportModes: $modes\n    walkReluctance: $walkReluctance\n    walkSpeed: $walkSpeed\n  ) {\n    itineraries {\n      accessibilityScore\n      walkTime\n      walkDistance\n      duration\n      endTime\n      legs {\n        accessibilityScore\n        agency {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          gtfsId\n          id: gtfsId\n          name\n          timezone\n          url\n        }\n        alerts {\n          alertDescriptionText\n          alertHeaderText\n          alertUrl\n          effectiveStartDate\n          id\n        }\n        arrivalDelay\n        departureDelay\n        distance\n        dropOffBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        dropoffType\n        duration\n        endTime\n        fareProducts {\n          id\n          product {\n            __typename\n            id\n            medium {\n              id\n              name\n            }\n            name\n            riderCategory {\n              id\n              name\n            }\n            ... on DefaultFareProduct {\n              price {\n                amount\n                currency {\n                  code\n                  digits\n                }\n              }\n            }\n          }\n        }\n        from {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        headsign\n        interlineWithPreviousLeg\n        intermediateStops {\n          lat\n          locationType\n          lon\n          name\n          stopCode: code\n          stopId: id\n        }\n        legGeometry {\n          length\n          points\n        }\n        mode\n        pickupBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        pickupType\n        realTime\n        realtimeState\n        rentedBike\n        rideHailingEstimate {\n          arrival\n          maxPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          minPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          provider {\n            id\n          }\n        }\n        route {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          color\n          gtfsId\n          id: gtfsId\n          longName\n          shortName\n          textColor\n          type\n        }\n        startTime\n        steps {\n          absoluteDirection\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          area\n          distance\n          elevationProfile {\n            distance\n            elevation\n          }\n          lat\n          lon\n          relativeDirection\n          stayOn\n          streetName\n        }\n        to {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        transitLeg\n        trip {\n          arrivalStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          departureStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          gtfsId\n          id\n        }\n      }\n      startTime\n      transfers: numberOfTransfers\n      waitingTime\n      walkTime\n    }\n    routingErrors {\n      code\n      description\n      inputField\n    }\n  }\n}\n","variables":{"date":"2025-08-10","time":"15:46","fromPlace":"SW Alder & 14th::45.521764017865,-122.686053248257","toPlace":"232 NW 6th Ave, Portland::45.525162980572475,-122.67665028099222::Oregon","arriveBy":false,"modes":[{"mode":"BUS"},{"mode":"TRAM"},{"mode":"RAIL"},{"mode":"GONDOLA"},{"mode":"BICYCLE","qualifier":"RENT"}],"searchWindow":2400,"banned":{},"bikeReluctance":4,"bikeSpeed":3.58,"walkReluctance":4,"walkSpeed":1.34,"allowedVehicleRentalNetworks":["lyft_pdx"]}}
+--0381b42f-F--
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Vary: Accept,Accept-Encoding,Accept-Language,User-Agent
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: false
+Content-Type: application/json
+Cache-Control: max-age=0
+Expires: Sun, 10 Aug 2025 22:46:16 GMT
+X-Robots-Tag: noindex, nofollow
+Keep-Alive: timeout=3, max=100
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+
+--0381b42f-H--
+Message: Warning. Pattern match "POST" at REQUEST_METHOD. [file "/etc/httpd/conf.d/mod_security.conf"] [line "25"] [id "1000"]
+Apache-Handler: proxy-server
+Stopwatch: 1754865976454832 632361 (- - -)
+Stopwatch2: 1754865976454832 632361; combined=157, p1=1, p2=147, p3=1, p4=1, p5=6, sr=0, sw=1, l=0, gc=0
+Producer: ModSecurity for Apache/2.7.3 (http://www.modsecurity.org/).
+Server: Apache
+Engine-Mode: "ENABLED"
+
+--0381b42f-Z--
+
+--0381b42f-A--
+[10/Aug/2025:15:46:17 --0700] aJkhOKwZZuAAACiOCWUAAAAM 172.25.90.86 37974 172.25.102.224 443
+--0381b42f-B--
+POST /rtp/gtfs/v1 HTTP/1.1
+Host: maps8.trimet.org
+Connection: keep-alive
+Content-Length: 6525
+sec-ch-ua-platform: "Windows"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+sec-ch-ua: "Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"
+Content-Type: application/json
+sec-ch-ua-mobile: ?0
+Accept: */*
+Origin: https://labs-5.trimet.org
+Sec-Fetch-Site: same-site
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: https://labs-5.trimet.org/
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+--0381b42f-C--
+{"query":"\n  query Plan(\n    $allowedVehicleRentalNetworks: [String],\n    $arriveBy: Boolean,\n    $banned: InputBanned,\n    $bikeReluctance: Float,\n    $bikeSpeed: Float,\n    $carReluctance: Float,\n    $date: String,\n    $fromPlace: String!,\n    $modes: [TransportMode],\n    $searchWindow: Long,\n    $time: String,\n    $toPlace: String!,\n    $walkReluctance: Float,\n    $walkSpeed: Float\n  ) {\n  plan(\n    allowedVehicleRentalNetworks: $allowedVehicleRentalNetworks\n    arriveBy: $arriveBy\n    banned: $banned\n    bikeReluctance: $bikeReluctance\n    bikeSpeed: $bikeSpeed\n    carReluctance: $carReluctance\n    date: $date\n    fromPlace: $fromPlace\n    locale: \"en\"\n    searchWindow: $searchWindow\n    time: $time\n    toPlace: $toPlace\n    transportModes: $modes\n    walkReluctance: $walkReluctance\n    walkSpeed: $walkSpeed\n  ) {\n    itineraries {\n      accessibilityScore\n      walkTime\n      walkDistance\n      duration\n      endTime\n      legs {\n        accessibilityScore\n        agency {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          gtfsId\n          id: gtfsId\n          name\n          timezone\n          url\n        }\n        alerts {\n          alertDescriptionText\n          alertHeaderText\n          alertUrl\n          effectiveStartDate\n          id\n        }\n        arrivalDelay\n        departureDelay\n        distance\n        dropOffBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        dropoffType\n        duration\n        endTime\n        fareProducts {\n          id\n          product {\n            __typename\n            id\n            medium {\n              id\n              name\n            }\n            name\n            riderCategory {\n              id\n              name\n            }\n            ... on DefaultFareProduct {\n              price {\n                amount\n                currency {\n                  code\n                  digits\n                }\n              }\n            }\n          }\n        }\n        from {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        headsign\n        interlineWithPreviousLeg\n        intermediateStops {\n          lat\n          locationType\n          lon\n          name\n          stopCode: code\n          stopId: id\n        }\n        legGeometry {\n          length\n          points\n        }\n        mode\n        pickupBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        pickupType\n        realTime\n        realtimeState\n        rentedBike\n        rideHailingEstimate {\n          arrival\n          maxPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          minPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          provider {\n            id\n          }\n        }\n        route {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          color\n          gtfsId\n          id: gtfsId\n          longName\n          shortName\n          textColor\n          type\n        }\n        startTime\n        steps {\n          absoluteDirection\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          area\n          distance\n          elevationProfile {\n            distance\n            elevation\n          }\n          lat\n          lon\n          relativeDirection\n          stayOn\n          streetName\n        }\n        to {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        transitLeg\n        trip {\n          arrivalStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          departureStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          gtfsId\n          id\n        }\n      }\n      startTime\n      transfers: numberOfTransfers\n      waitingTime\n      walkTime\n    }\n    routingErrors {\n      code\n      description\n      inputField\n    }\n  }\n}\n","variables":{"date":"2025-08-10","time":"15:45","fromPlace":"SW Alder & 14th::45.521764017865,-122.686053248257","toPlace":"232 NW 6th Ave, Portland::45.525162980572475,-122.67665028099222::Oregon","arriveBy":false,"modes":[{"mode":"BUS"},{"mode":"TRAM"},{"mode":"RAIL"},{"mode":"GONDOLA"},{"mode":"BICYCLE","qualifier":"RENT"}],"searchWindow":2400,"banned":{},"bikeReluctance":4,"bikeSpeed":3.58,"walkReluctance":4,"walkSpeed":1.34,"allowedVehicleRentalNetworks":["lyft_pdx"]}}
+--0381b42f-F--
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Vary: Accept,Accept-Encoding,Accept-Language,User-Agent
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: false
+Content-Type: application/json
+Cache-Control: max-age=0
+Expires: Sun, 10 Aug 2025 22:46:16 GMT
+X-Robots-Tag: noindex, nofollow
+Keep-Alive: timeout=3, max=100
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+
+--0381b42f-H--
+Message: Warning. Pattern match "POST" at REQUEST_METHOD. [file "/etc/httpd/conf.d/mod_security.conf"] [line "25"] [id "1000"]
+Apache-Handler: proxy-server
+Stopwatch: 1754865976093335 1051308 (- - -)
+Stopwatch2: 1754865976093335 1051308; combined=189, p1=2, p2=177, p3=2, p4=1, p5=7, sr=0, sw=0, l=0, gc=0
+Producer: ModSecurity for Apache/2.7.3 (http://www.modsecurity.org/).
+Server: Apache
+Engine-Mode: "ENABLED"
+
+--0381b42f-Z--
+
+--ac12e119-A--
+[10/Aug/2025:15:47:28 --0700] aJkhf6wZZuAAACizGGsAAAAx 172.25.90.86 53296 172.25.102.224 443
+--ac12e119-B--
+POST /rtp/gtfs/v1 HTTP/1.1
+Host: maps8.trimet.org
+Connection: keep-alive
+Content-Length: 6535
+sec-ch-ua-platform: "Windows"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+sec-ch-ua: "Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"
+Content-Type: application/json
+sec-ch-ua-mobile: ?0
+Accept: */*
+Origin: https://labs-5.trimet.org
+Sec-Fetch-Site: same-site
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: https://labs-5.trimet.org/
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+--ac12e119-C--
+{"query":"\n  query Plan(\n    $allowedVehicleRentalNetworks: [String],\n    $arriveBy: Boolean,\n    $banned: InputBanned,\n    $bikeReluctance: Float,\n    $bikeSpeed: Float,\n    $carReluctance: Float,\n    $date: String,\n    $fromPlace: String!,\n    $modes: [TransportMode],\n    $searchWindow: Long,\n    $time: String,\n    $toPlace: String!,\n    $walkReluctance: Float,\n    $walkSpeed: Float\n  ) {\n  plan(\n    allowedVehicleRentalNetworks: $allowedVehicleRentalNetworks\n    arriveBy: $arriveBy\n    banned: $banned\n    bikeReluctance: $bikeReluctance\n    bikeSpeed: $bikeSpeed\n    carReluctance: $carReluctance\n    date: $date\n    fromPlace: $fromPlace\n    locale: \"en\"\n    searchWindow: $searchWindow\n    time: $time\n    toPlace: $toPlace\n    transportModes: $modes\n    walkReluctance: $walkReluctance\n    walkSpeed: $walkSpeed\n  ) {\n    itineraries {\n      accessibilityScore\n      walkTime\n      walkDistance\n      duration\n      endTime\n      legs {\n        accessibilityScore\n        agency {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          gtfsId\n          id: gtfsId\n          name\n          timezone\n          url\n        }\n        alerts {\n          alertDescriptionText\n          alertHeaderText\n          alertUrl\n          effectiveStartDate\n          id\n        }\n        arrivalDelay\n        departureDelay\n        distance\n        dropOffBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        dropoffType\n        duration\n        endTime\n        fareProducts {\n          id\n          product {\n            __typename\n            id\n            medium {\n              id\n              name\n            }\n            name\n            riderCategory {\n              id\n              name\n            }\n            ... on DefaultFareProduct {\n              price {\n                amount\n                currency {\n                  code\n                  digits\n                }\n              }\n            }\n          }\n        }\n        from {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        headsign\n        interlineWithPreviousLeg\n        intermediateStops {\n          lat\n          locationType\n          lon\n          name\n          stopCode: code\n          stopId: id\n        }\n        legGeometry {\n          length\n          points\n        }\n        mode\n        pickupBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        pickupType\n        realTime\n        realtimeState\n        rentedBike\n        rideHailingEstimate {\n          arrival\n          maxPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          minPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          provider {\n            id\n          }\n        }\n        route {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          color\n          gtfsId\n          id: gtfsId\n          longName\n          shortName\n          textColor\n          type\n        }\n        startTime\n        steps {\n          absoluteDirection\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          area\n          distance\n          elevationProfile {\n            distance\n            elevation\n          }\n          lat\n          lon\n          relativeDirection\n          stayOn\n          streetName\n        }\n        to {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        transitLeg\n        trip {\n          arrivalStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          departureStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          gtfsId\n          id\n        }\n      }\n      startTime\n      transfers: numberOfTransfers\n      waitingTime\n      walkTime\n    }\n    routingErrors {\n      code\n      description\n      inputField\n    }\n  }\n}\n","variables":{"date":"2025-08-10","time":"15:47","fromPlace":"A Ave & Second St (ID 3), Lake Oswego::45.419388,-122.665197","toPlace":"232 NW 6th Ave, Portland::45.525162980572475,-122.67665028099222::Oregon","arriveBy":false,"modes":[{"mode":"BUS"},{"mode":"TRAM"},{"mode":"RAIL"},{"mode":"GONDOLA"},{"mode":"BICYCLE","qualifier":"RENT"}],"searchWindow":2400,"banned":{},"bikeReluctance":4,"bikeSpeed":3.58,"walkReluctance":4,"walkSpeed":1.34,"allowedVehicleRentalNetworks":["lyft_pdx"]}}
+--ac12e119-F--
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Vary: Accept,Accept-Encoding,Accept-Language,User-Agent
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: false
+Content-Type: application/json
+Cache-Control: max-age=0
+Expires: Sun, 10 Aug 2025 22:47:27 GMT
+X-Robots-Tag: noindex, nofollow
+Keep-Alive: timeout=3, max=100
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+
+--ac12e119-H--
+Message: Warning. Pattern match "POST" at REQUEST_METHOD. [file "/etc/httpd/conf.d/mod_security.conf"] [line "25"] [id "1000"]
+Apache-Handler: proxy-server
+Stopwatch: 1754866047990086 405959 (- - -)
+Stopwatch2: 1754866047990086 405959; combined=147, p1=1, p2=134, p3=2, p4=0, p5=9, sr=0, sw=1, l=0, gc=0
+Producer: ModSecurity for Apache/2.7.3 (http://www.modsecurity.org/).
+Server: Apache
+Engine-Mode: "ENABLED"
+
+--ac12e119-Z--
+
+--8981ab43-A--
+[10/Aug/2025:15:47:30 --0700] aJkhgawZZuAAACi0GPIAAAAy 172.25.90.86 53310 172.25.102.224 443
+--8981ab43-B--
+POST /rtp/gtfs/v1 HTTP/1.1
+Host: maps8.trimet.org
+Connection: keep-alive
+Content-Length: 6535
+sec-ch-ua-platform: "Windows"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+sec-ch-ua: "Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"
+Content-Type: application/json
+sec-ch-ua-mobile: ?0
+Accept: */*
+Origin: https://labs-5.trimet.org
+Sec-Fetch-Site: same-site
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: https://labs-5.trimet.org/
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+
+--8981ab43-C--
+{"query":"\n  query Plan(\n    $allowedVehicleRentalNetworks: [String],\n    $arriveBy: Boolean,\n    $banned: InputBanned,\n    $bikeReluctance: Float,\n    $bikeSpeed: Float,\n    $carReluctance: Float,\n    $date: String,\n    $fromPlace: String!,\n    $modes: [TransportMode],\n    $searchWindow: Long,\n    $time: String,\n    $toPlace: String!,\n    $walkReluctance: Float,\n    $walkSpeed: Float\n  ) {\n  plan(\n    allowedVehicleRentalNetworks: $allowedVehicleRentalNetworks\n    arriveBy: $arriveBy\n    banned: $banned\n    bikeReluctance: $bikeReluctance\n    bikeSpeed: $bikeSpeed\n    carReluctance: $carReluctance\n    date: $date\n    fromPlace: $fromPlace\n    locale: \"en\"\n    searchWindow: $searchWindow\n    time: $time\n    toPlace: $toPlace\n    transportModes: $modes\n    walkReluctance: $walkReluctance\n    walkSpeed: $walkSpeed\n  ) {\n    itineraries {\n      accessibilityScore\n      walkTime\n      walkDistance\n      duration\n      endTime\n      legs {\n        accessibilityScore\n        agency {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          gtfsId\n          id: gtfsId\n          name\n          timezone\n          url\n        }\n        alerts {\n          alertDescriptionText\n          alertHeaderText\n          alertUrl\n          effectiveStartDate\n          id\n        }\n        arrivalDelay\n        departureDelay\n        distance\n        dropOffBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        dropoffType\n        duration\n        endTime\n        fareProducts {\n          id\n          product {\n            __typename\n            id\n            medium {\n              id\n              name\n            }\n            name\n            riderCategory {\n              id\n              name\n            }\n            ... on DefaultFareProduct {\n              price {\n                amount\n                currency {\n                  code\n                  digits\n                }\n              }\n            }\n          }\n        }\n        from {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        headsign\n        interlineWithPreviousLeg\n        intermediateStops {\n          lat\n          locationType\n          lon\n          name\n          stopCode: code\n          stopId: id\n        }\n        legGeometry {\n          length\n          points\n        }\n        mode\n        pickupBookingInfo {\n          contactInfo {\n            bookingUrl\n            infoUrl\n            phoneNumber\n          }\n          earliestBookingTime {\n            daysPrior\n            time\n          }\n          latestBookingTime {\n            daysPrior\n            time\n          }\n          message\n        }\n        pickupType\n        realTime\n        realtimeState\n        rentedBike\n        rideHailingEstimate {\n          arrival\n          maxPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          minPrice {\n            amount\n            currency {\n              code\n            }\n          }\n          provider {\n            id\n          }\n        }\n        route {\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          color\n          gtfsId\n          id: gtfsId\n          longName\n          shortName\n          textColor\n          type\n        }\n        startTime\n        steps {\n          absoluteDirection\n          alerts {\n            alertDescriptionText\n            alertHeaderText\n            alertUrl\n            effectiveStartDate\n            id\n          }\n          area\n          distance\n          elevationProfile {\n            distance\n            elevation\n          }\n          lat\n          lon\n          relativeDirection\n          stayOn\n          streetName\n        }\n        to {\n          lat\n          lon\n          name\n          vehicleRentalStation {\n            name\n            rentalNetwork {\n              networkId\n            }\n          }\n          rentalVehicle {\n            id\n            network\n          }\n          stop {\n            alerts {\n              alertDescriptionText\n              alertHeaderText\n              alertUrl\n              effectiveStartDate\n              id\n            }\n            code\n            gtfsId\n            id\n            lat\n            lon\n          }\n          vertexType\n        }\n        transitLeg\n        trip {\n          arrivalStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          departureStoptime {\n            stop {\n              gtfsId\n              id\n            }\n            stopPosition\n          }\n          gtfsId\n          id\n        }\n      }\n      startTime\n      transfers: numberOfTransfers\n      waitingTime\n      walkTime\n    }\n    routingErrors {\n      code\n      description\n      inputField\n    }\n  }\n}\n","variables":{"date":"2025-08-10","time":"15:46","fromPlace":"A Ave & Second St (ID 3), Lake Oswego::45.419388,-122.665197","toPlace":"232 NW 6th Ave, Portland::45.525162980572475,-122.67665028099222::Oregon","arriveBy":false,"modes":[{"mode":"BUS"},{"mode":"TRAM"},{"mode":"RAIL"},{"mode":"GONDOLA"},{"mode":"BICYCLE","qualifier":"RENT"}],"searchWindow":2400,"banned":{},"bikeReluctance":4,"bikeSpeed":3.58,"walkReluctance":4,"walkSpeed":1.34,"allowedVehicleRentalNetworks":["lyft_pdx"]}}
+--8981ab43-F--
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Vary: Accept,Accept-Encoding,Accept-Language,User-Agent
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: false
+Content-Type: application/json
+Cache-Control: max-age=0
+Expires: Sun, 10 Aug 2025 22:47:29 GMT
+X-Robots-Tag: noindex, nofollow
+Keep-Alive: timeout=3, max=100
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+
+--8981ab43-H--
+Message: Warning. Pattern match "POST" at REQUEST_METHOD. [file "/etc/httpd/conf.d/mod_security.conf"] [line "25"] [id "1000"]
+Apache-Handler: proxy-server
+Stopwatch: 1754866049677063 402511 (- - -)
+Stopwatch2: 1754866049677063 402511; combined=142, p1=1, p2=129, p3=2, p4=0, p5=10, sr=0, sw=0, l=0, gc=0
+Producer: ModSecurity for Apache/2.7.3 (http://www.modsecurity.org/).
+Server: Apache
+Engine-Mode: "ENABLED"
+
+--8981ab43-Z--
+
+--b00a5163-A--
+[10/Aug/2025:15:49:28 --0700] aJkh@KwZZuAAACitFgIAAAAr 149.50.96.5 63408 172.25.102.224 80
+--b00a5163-B--
+POST /bapply.cgi HTTP/1.1
+Host: 216.25.208.132:80
+Content-Length: 297
+Cache-Control: max-age=0
+Authorization: Basic ZmZhZG1pbjpmZmFkbWluZmY=
+Accept-Language: en-US,en;q=0.9
+Origin: http://216.25.208.132:80
+Content-Type: application/x-www-form-urlencoded
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.71 Safari/537.36
+Accept: text
