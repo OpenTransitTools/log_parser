@@ -1,7 +1,7 @@
 from email.policy import default
 import hmac
 import hashlib
-from tkinter.messagebox import NO
+#from tkinter.messagebox import NO
 from tokenize import Number
 import urllib
 from dateutil import parser as dateutil_parser
