@@ -1,5 +1,5 @@
 """
-  Will read log_parser report .json data, and work to sort and catogrize based on user and place
+  Will read log_parser report .json data, and work to sort and categorize based on user and place
 
   Measures:
    - requests with the same start and end lat,log coordinates

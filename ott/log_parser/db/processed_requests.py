@@ -99,6 +99,8 @@ class ProcessedRequests(Base):
         app_name = def_val
 
         tora = "TORA (trimet.org)"
+        tora2 = "TORA 2.x (trimet.org)"
+        rtp = "RTP (rtp.trimet.org)"
         call = "CALL (call.trimet.org)"
         imap = "MAP (maps.trimet.org)"
         mob = "MOBILITY MAP (mobilitymap.trimet.org)"
