@@ -45,18 +45,88 @@ def parse_modsec_audit_log(filename):
     return entries
 
 
+def parse_section_a(req):
+    """
+    --9e7b8111-A--
+    [10/Aug/2025:15:39:41 --0700] xxx 172.25.90.86 55986 172.25.102.224 443
+    """
+    date = None
+    ip = None
+    sec_a = req.get("A", None)
+
+    try:
+        date_match = re.search(r"\[(.*?)\]", sec_a)
+        date = date_match.group(1) if date_match else None
+        date = date # convert to date time
+    except Exception as e:
+        pass
+
+    try:
+        ip_matches = re.findall(r"\b(?:\d{1,3}\.){3}\d{1,3}\b", sec_a)
+        ip = ip_matches[0]
+    except Exception as e:
+        pass
+    return date, ip
+
+
+def parse_section_b(req):
+    """
+    section b has request headers
+    """
+    user_agent = ""
+    referer = ""
+    return user_agent, referer
+
+
+def parse_section_c(req):
+    """
+    section c has the POST payload
+    split the string at variables, and return that json of key/value pairs
+
+    --9e7b8111-C--
+    ....description\ninputField\n}\n}\n}\n","variables":{"date":"2025-08-10","time":"15:23",...
+    """
+    ret_val = None
+    sec_c = req.get("C", None)
+
+    try:
+        vars = sec_c.split("variables\":")
+        ret_val = vars[1][:-1]  # return things right of the variables, except for dangling bracket
+    except Exception as e:
+        pass
+    return ret_val
+
+
+def parse_section_f(req, def_code="520"):
+    """
+    section f has response headers
+    """
+    code = def_code
+    return code
+
+
 def parse_raw_request(req):
     """
     parse out the various 'raw' elements from a given mod_security2 log record (dict)
     """
     #import pdb; pdb.set_trace()
     rec = {}
-    rec['ip'] = ""
-    rec['date'] = ""
-    rec['url'] = ""
-    rec['code'] = ""
-    rec['referrer'] = ""
-    rec['browser'] = ""
+
+    date, ip = parse_section_a(req)
+    rec['ip'] = ip
+    rec['date'] = date
+
+    vars = parse_section_c(req)
+    rec['url'] = vars
+
+    user_agent, referer = parse_section_b(req)
+    rec['browser'] = user_agent
+    rec['referer'] = referer
+
+    code = parse_section_f(req)
+    rec['code'] = code
+
+    return rec
 
 
 def parse_processed(req):
@@ -73,11 +143,12 @@ def parse_processed(req):
     rec['browser'] = ""
 
 
-def simple_test(parse=False):
+def simple_test(parse=True):
     parsed_entries = parse_modsec_audit_log('docs/modsec_audit.txt')
     for e in parsed_entries:
         if parse:
             raw = parse_raw_request(e)
+            print(raw)
             pro = parse_processed(raw)
         else:
             print(f"ID: {e['id']}")
