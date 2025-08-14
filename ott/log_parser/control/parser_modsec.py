@@ -75,9 +75,13 @@ def parse_section_a(req):
 def parse_section_b(req):
     """
     section b has request headers
+    POST /rtp/gtfs/v1 HTTP/1.1
+    Referer: https://labs-5.trimet.org/
+    User-Agent: Mozilla/5.0 (Win...
     """
     user_agent = ""    
     referer = ""
+    url = ""
 
     sec_b = req.get("B", None)
     try:    
@@ -93,7 +97,14 @@ def parse_section_b(req):
     except Exception as e:
         pass
 
-    return user_agent, referer
+    try:    
+        u = re.search(r"POST (.*) HTTP.*\n", sec_b)
+        url = u.group(1) if u else ""
+    except Exception as e:
+        pass
+
+
+    return user_agent, url, referer
 
 
 def parse_section_c(req):
@@ -150,12 +161,13 @@ def parse_raw_request(req):
     rec['ip'] = ip
     rec['apache_dt'] = date
 
-    user_agent, referer = parse_section_b(req)
+    user_agent, url, referer = parse_section_b(req)
     rec['browser'] = user_agent
+    rec['url'] = url
     rec['referer'] = referer
 
-    vars = parse_section_c(req)
-    rec['url'] = vars
+    payload = parse_section_c(req)
+    rec['payload'] = payload
 
     code = parse_section_f(req)
     rec['code'] = code
@@ -167,7 +179,6 @@ def parse_processed(req):
     """
     parse out the 'ul' elements from a given raw mod_security2 record
     """
-    #import pdb; pdb.set_trace()
     rec = {}
     rec['ip'] = ""
     rec['date'] = ""
