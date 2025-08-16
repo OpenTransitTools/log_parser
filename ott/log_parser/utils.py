@@ -9,6 +9,7 @@ from dateutil import parser as dateutil_parser
 from ott.utils.parse.cmdline import db_cmdline
 from ott.utils import file_utils
 
+import json
 import logging
 log = logging.getLogger(__file__)
 
@@ -195,6 +196,17 @@ def get_modes_otp2(qs):
 
 def get_modes_otp1(qs):
     return qs.get('mode')[0].upper().strip()
+
+
+def encode(p):
+    return urllib.parse.quote_plus(p)
+
+def to_url(log):
+    ret_val = log.url
+    if len(log.payload) > 10 and '?' not in log.url:
+        pl = json.loads(log.payload)  # OTP 2.x graphql
+        ret_val = "{}home/planner-trip/?fromPlace={}&toPlace={}".format(log.referer, encode(pl.get('fromPlace')), encode(pl.get('toPlace')))
+    return ret_val
 
 
 def just_lat_lon(named_coord):

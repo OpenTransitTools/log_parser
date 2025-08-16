@@ -237,12 +237,13 @@ class ProcessedRequests(Base):
         """
         ua = utils.clean_useragent(self.log.browser)
         browser = utils.get_browser(ua)
+        url = utils.to_url(self.log)
 
         ret_val = {
             'ip_hash': self.ip_hash,
             'app_name': self.app_name,
             'date': self.log.date,
-            'url': self.log.url,
+            'url': url,
             'modes': self.modes,
             'companies': self.companies,
             'from_lat': self.from_lat,
