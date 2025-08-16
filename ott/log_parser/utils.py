@@ -187,9 +187,21 @@ def just_name_of_ncoord(named_coord, def_val=None):
     return ret_val
 
 
+def get_modes_otp2(qs):
+    m = qs.get('modes')
+    m = [i.get('mode', "") for i in m]
+    return str(m).upper().strip()
+
+
+def get_modes_otp1(qs):
+    return qs.get('mode')[0].upper().strip()
+
+
 def just_lat_lon(named_coord):
     lat = lon = None
     try:
+        if isinstance(named_coord, list):
+            named_coord = named_coord[0]
         s = named_coord
         if "::" in named_coord:
             s = named_coord.split("::")[1]

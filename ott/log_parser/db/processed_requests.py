@@ -4,6 +4,7 @@ from re import S
 from sqlalchemy import Column, String, Boolean, Integer, Float, func, and_
 from sqlalchemy.orm import relationship
 
+import json
 from .. import utils
 from .base import Base
 from .raw_log import RawLog
@@ -49,17 +50,27 @@ class ProcessedRequests(Base):
     )
 
     def __init__(self, raw_rec):
-        #import pdb; pdb.set_trace()
         super(ProcessedRequests, self)
         self.log_id = raw_rec.id
         self.ip_hash = utils.obfuscate(raw_rec.ip)
         self.app_name = self.get_app_name(raw_rec)
 
+
+        # TODO - refactor, this is a confusing mix of model and controller / parser
         try:
-            qs = utils.get_url_qs(raw_rec.url)
+            #import pdb; pdb.set_trace()
+
+            if raw_rec.payload and len(raw_rec.payload) > 20:
+                qs = json.loads(raw_rec.payload)  # OTP 2.x graphql
+                #import pdb; pdb.set_trace()
+                modes = utils.get_modes_otp2(qs)
+            else:
+                qs = utils.get_url_qs(raw_rec.url)
+                modes = utils.get_modes_otp1(qs)
+
             self.parse_from(qs)
             self.parse_to(qs)
-            self.parse_modes(qs)
+            self.parse_modes(modes)
             self.parse_companies(qs)
             self.apply_filters(raw_rec.url)
         except:
@@ -99,7 +110,6 @@ class ProcessedRequests(Base):
         app_name = def_val
 
         tora = "TORA (trimet.org)"
-        tora2 = "TORA 2.x (trimet.org)"
         rtp = "RTP (rtp.trimet.org)"
         call = "CALL (call.trimet.org)"
         imap = "MAP (maps.trimet.org)"
@@ -154,7 +164,7 @@ class ProcessedRequests(Base):
 
     def parse_from(self, qs):
         ret_val = True
-        lat,lon = utils.just_lat_lon(qs.get('fromPlace')[0])
+        lat,lon = utils.just_lat_lon(qs.get('fromPlace'))
         if utils.is_valid_lat_lon(lat, lon):
             self.from_lat = lat
             self.from_lon = lon
@@ -165,7 +175,7 @@ class ProcessedRequests(Base):
 
     def parse_to(self, qs):
         ret_val = True
-        lat,lon = utils.just_lat_lon(qs.get('toPlace')[0])
+        lat,lon = utils.just_lat_lon(qs.get('toPlace'))
         if utils.is_valid_lat_lon(lat, lon):
             self.to_lat = lat
             self.to_lon = lon
@@ -174,13 +184,12 @@ class ProcessedRequests(Base):
             ret_val = False
         return ret_val
 
-    def parse_modes(self, qs):
+    def parse_modes(self, modes):
         """
            BUS, TRAIN, (GONDOLA, BOAT, etc...), ala transit modes
            [BIKE or BIKE_SHARE] [CAR or CAR_SHARE] [SCOOTER or SCOOTER_SHARE] [RIDE_SHARE]
            or WALK_ONLY or BIKE_ONLY or BIKE_SHARE_ONLY
         """
-        modes = qs.get('mode')[0].upper().strip()
 
         # step 1: handle transit modes ... distilled down to just BUS,TRAIN (note order important)
         if "BUS" in modes:
