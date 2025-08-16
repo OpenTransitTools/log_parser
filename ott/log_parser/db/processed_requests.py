@@ -59,10 +59,8 @@ class ProcessedRequests(Base):
         # TODO - refactor, this is a confusing mix of model and controller / parser
         try:
             #import pdb; pdb.set_trace()
-
             if raw_rec.payload and len(raw_rec.payload) > 20:
                 qs = json.loads(raw_rec.payload)  # OTP 2.x graphql
-                #import pdb; pdb.set_trace()
                 modes = utils.get_modes_otp2(qs)
             else:
                 qs = utils.get_url_qs(raw_rec.url)
@@ -79,6 +77,7 @@ class ProcessedRequests(Base):
 
     def apply_filters(self, url, fltval=-222):
         """ filter out uptime test urls, etc... """
+        #import pdb; pdb.set_trace()        
         if self.filter_request is None:
             if 'fromPlace=PDX' in url and ('toPlace=ZOO' in url or 'toPlace=SW%20Zoo%20Rd' in url):
                 self.filter_request = fltval
@@ -289,7 +288,6 @@ class ProcessedRequests(Base):
         """
         post process log junk
         """
-        # import pdb; pdb.set_trace()
         session = utils.make_session(False)
         cls.dedupe(session)
         cls.filter_repeated_bot_requests(session)
@@ -298,7 +296,6 @@ class ProcessedRequests(Base):
     def dedupe(cls, session):
         try:
             # step 1: dedup requests -- batch into buck of requests by user, then compare URLs for 'sameness'
-            #import pdb; pdb.set_trace()
             n = session.query(ProcessedRequests.ip_hash,  func.count(ProcessedRequests.ip_hash).label("count")).group_by(ProcessedRequests.ip_hash).all()
             for i in n:
                 if i.count > 1:
@@ -309,9 +306,13 @@ class ProcessedRequests(Base):
                         z = m+1
                         while z < len(nreqs):
                             l = nreqs[z]
-                            if l and l.filter_request is None and l.log.url == r.log.url:
-                                # print(r)
-                                l.filter_request = r.log_id
+                            if l and l.filter_request is None:
+                                #import pdb; pdb.set_trace()
+                                if len(l.log.payload) > 10:
+                                    if l.log.payload == r.log.payload:
+                                        l.filter_request = r.log_id
+                                elif l.log.url == r.log.url:
+                                    l.filter_request = r.log_id
                             z += 1
                     session.commit()
         except Exception as e:
