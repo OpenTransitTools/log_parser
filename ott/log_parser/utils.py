@@ -189,9 +189,16 @@ def just_name_of_ncoord(named_coord, def_val=None):
 
 
 def get_modes_otp2(qs):
-    m = qs.get('modes')
-    m = [i.get('mode', "") for i in m]
-    return str(m).upper().strip()
+    modes = ""
+    for i, z in enumerate(qs.get('modes')):
+        m = z.get('mode', "")
+        if z.get('qualifier', None):
+            m = "{}_{}".format(m, z.get('qualifier'))  # eg: CAR_PARK, BICYCLE_SHARE
+        if i > 0:
+            modes += ","
+        modes += m
+    modes = str(modes).upper().strip()
+    return modes
 
 
 def get_modes_otp1(qs):
@@ -200,6 +207,7 @@ def get_modes_otp1(qs):
 
 def encode(p):
     return urllib.parse.quote_plus(p)
+
 
 def to_url(log):
     ret_val = log.url

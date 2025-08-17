@@ -201,31 +201,44 @@ class ProcessedRequests(Base):
         if "CAR_PARK" in modes:
             self.modes = utils.append_string(self.modes, "CAR")  # Drive to Park & Ride
 
-        # step 2: bike
-        if "BICYCLE_RENT" in modes:
+        # step 2: bike - "mode":"BICYCLE","qualifier":"RENT"
+        if 'RENT' in modes and 'BICYCLE' in modes:
+            self.modes = utils.append_string(self.modes, "BIKE_SHARE")
+        elif "BICYCLE_RENT" in modes:
             self.modes = utils.append_string(self.modes, "BIKE_SHARE")
         elif "BICYCLE" in modes:
             self.modes = utils.append_string(self.modes, "BIKE")
 
-        # step 3: shared modes
+        # step 3: shared car
         if "CAR_HAIL" in modes:
             self.modes = utils.append_string(self.modes, "CAR_SHARE")
-        if "MICROMOBILITY_RENT" in modes:
+
+        # step 4: shared car
+        if utils.is_match_any(["MICROMOBILITY_RENT", "SCOOTER_RENT"], modes):
             self.modes = utils.append_string(self.modes, "SCOOTER_SHARE")
-        elif "MICROMOBILITY" in modes:
+        elif utils.is_match_any(["MICROMOBILITY", "SCOOTER"], modes):
             self.modes = utils.append_string(self.modes, "SCOOTER")
 
-        # step 4: walk / bike / etc... only
+        # step 5: walk / bike / etc... only
         if self.modes is None: self.modes = "WALK_ONLY"
         elif self.modes == "BIKE": self.modes = "BIKE_ONLY"
         elif self.modes == "BIKE_SHARE": self.modes = "BIKE_SHARE_ONLY"
+        elif self.modes == "BICYCLE_RENT": self.modes = "BIKE_SHARE_ONLY"
         elif self.modes == "SCOOTER": self.modes = "SCOOTER_ONLY"
         elif self.modes == "SCOOTER_SHARE": self.modes = "SCOOTER_SHARE_ONLY"
 
+        #print(modes)
+
     def parse_companies(self, qs):
-        self.companies = qs.get('companies', [None])[0]
-        if self.companies and self.companies == "NaN":
-            self.companies = None
+        """
+        "allowedVehicleRentalNetworks":["lyft_pdx"]
+        """
+        c = qs.get('companies', [None])[0]
+        if c is None:
+            c = qs.get("allowedVehicleRentalNetworks", None)
+        if c == "NaN":
+            c = None
+        self.companies = c
 
     def to_csv_dict(self):
         """
