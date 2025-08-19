@@ -249,6 +249,7 @@ class ProcessedRequests(Base):
             c = qs.get("allowedVehicleRentalNetworks", None)
         if c == "NaN":
             c = None
+        #if c and "{" in c:
         self.companies = c
 
     def to_csv_dict(self):

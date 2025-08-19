@@ -1,6 +1,7 @@
 """
 stats
 """
+from datetime import datetime
 from urllib import request
 from ott.log_parser.db.processed_requests import ProcessedRequests
 from .. import utils
@@ -33,8 +34,10 @@ class Stats(object):
                 c['related'] += 1
 
     def print(self):
+        now = datetime.now()
         names = sorted(self.app_counts)
-        print("\nTotal Requests: {}".format(self.total_plans))
+        print("\nDate: {}".format(now.strftime("%B %d, %Y")))
+        print("Total Requests: {}".format(self.total_plans))
         print("Unique Requests: {}\n".format(self.filtered_plans))
         print("  {:40} {:8} {:8} {:8}".format("APP NAME", "    total", "filtered", " related"))
         print("  {:40} {:8} {:8} {:8}".format("--------", "    -----", "--------", " -------"))
