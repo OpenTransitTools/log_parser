@@ -194,7 +194,9 @@ def parse_log_file(file: os.PathLike):
     for e in parsed_entries:
         rec = parse_raw_request(e)
         if rec and rec.get('url', None):
-            ret_val.append(rec)
+            url = rec.get('url', "")
+            if 'atisExe' not in url and 'solr/select' not in url:
+                ret_val.append(rec)
     return ret_val
 
 

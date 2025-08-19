@@ -111,6 +111,7 @@ class ProcessedRequests(Base):
         tora = "TORA (trimet.org)"
         rtp = "RTP (rtp.trimet.org)"
         call = "CALL (call.trimet.org)"
+        call2 = "CALL2 (call.trimet.org)"
         imap = "MAP (maps.trimet.org)"
         mob = "MOBILITY MAP (mobilitymap.trimet.org)"
         mod = "MOD (newplanner.trimet.org)"
@@ -123,8 +124,10 @@ class ProcessedRequests(Base):
 
         if len(rec.referer) > 3:
             referer = rec.referer.lower()
-            if 'call-test' in referer or 'test.trimet' in referer:
+            if 'localhost:8000' in referer or 'labs' in referer or 'test.trimet' in referer:
                 app_name = TEST_SYSTEM
+            elif 'call-test' in referer:
+                app_name = call2
             elif 'call' in referer:
                 app_name = call
             elif 'newplanner' in referer or 'betaplanner' in referer:
@@ -133,7 +136,7 @@ class ProcessedRequests(Base):
                 app_name = imap
             elif 'mobilitymap' in referer:
                 app_name = mob
-            elif 'labs' in referer or 'beta' in referer:
+            elif 'trimet.org' in referer or 'beta.trimet.org' in referer:
                 app_name = tora
 
         if utils.is_mod_planner(rec.url):
@@ -143,21 +146,29 @@ class ProcessedRequests(Base):
         elif utils.is_old_trimet(rec.url):
             app_name = old
 
+        if utils.is_developer_api(rec.url):
+            rec.is_api = True
+            if app_name is def_val:
+                app_name = api
+
         if rec.browser and len(rec.browser) > 3:
             browser = rec.browser.lower()
             if 'java' in browser:
                 app_name = api
+            if 'nagios' in browser:
+                app_name = test
             if 'python' in browser and utils.is_pdx_zoo(rec.url):
                 app_name = test
             if 'pdx%20bus' in browser:
                 app_name = pdxbus
+                #print(rec.__dict__)
             if 'pdx%20tran' in browser:
                 app_name = pdxtransit
 
-        if utils.is_developer_api(rec.url):
-            rec.is_api = True
-            if app_name is def_val:
-                app_name = api 
+        if app_name == def_val:
+            #import pdb; pdb.set_trace()
+            #print(rec.__dict__)
+            pass
 
         return app_name
 
