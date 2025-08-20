@@ -34,9 +34,10 @@ class Stats(object):
                 c['related'] += 1
 
     def print(self):
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         now = datetime.today() - timedelta(days=1)  # offset for cron job processing yesterday's data
         names = sorted(self.app_counts)
-        print("\nDate: {}".format(now.strftime("%B %d, %Y")))
+        print("\n{} {}".format(days[now.weekday()], now.strftime("%B %d, %Y")))
         print("Total Requests:  {}".format(self.total_plans))
         print("Unique Requests: {}\n".format(self.filtered_plans))
         print("  {:40} {:8} {:8} {:8}".format("APP NAME", "    total", "filtered", " related"))
