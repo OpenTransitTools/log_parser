@@ -12,7 +12,10 @@ log = logging.getLogger(__file__)
 
 def load_log_file(file, session):
     """ load a log file into the db """
-    recs = parser.parse_log_file(file)
+    try:
+        recs = parser.parse_log_file(file)
+    except:
+        recs = None
     if recs is None or len(recs) == 0:
         # with no recs from first parser, maybe this is a mod_security file containing trip plans
         #import pdb; pdb.set_trace()
