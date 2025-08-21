@@ -5,7 +5,6 @@ LOG_DIR=${3:-$HOME/httpd_logs}
 OUT_DIR=${4:-$HOME/processing}
 SVR_DIRS=${5:-maps8 maps9 maps10}
 
-
 # remove the temp processing dir
 rm -rf $OUT_DIR
 
@@ -18,3 +17,5 @@ do
     echo $cmd
     eval $cmd
 done
+
+find $OUT_DIR
