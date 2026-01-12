@@ -1,5 +1,5 @@
 """
-  Will parse Apache log file, looking for requests to the OpenTripPlanner (OTP)
+  Will parse Apache access log file, looking for requests to the OpenTripPlanner (OTP)
 
   :note: individual log entries look like this string
    172.25.102.10 "172.25.102.10" - - [26/Jan/2021:10:36:23 -0800] "GET /?sessionId=blah HTTP/1.1" 200 2972 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36"

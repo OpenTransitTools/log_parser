@@ -26,7 +26,7 @@ function waiting() {
 clear
 
 # loop thru days
-for n in 5 6 
+for n in 2
 do
   # copy data to the hot-dir toward 
   DT=`date -d "${n} day ago" '+%Y-%m-%d'`

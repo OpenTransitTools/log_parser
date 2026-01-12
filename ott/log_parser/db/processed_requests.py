@@ -4,6 +4,7 @@ from re import S
 from sqlalchemy import Column, String, Boolean, Integer, Float, func, and_
 from sqlalchemy.orm import relationship
 
+import json
 from .. import utils
 from .base import Base
 from .raw_log import RawLog
@@ -49,17 +50,25 @@ class ProcessedRequests(Base):
     )
 
     def __init__(self, raw_rec):
-        #import pdb; pdb.set_trace()
         super(ProcessedRequests, self)
         self.log_id = raw_rec.id
         self.ip_hash = utils.obfuscate(raw_rec.ip)
         self.app_name = self.get_app_name(raw_rec)
 
+
+        # TODO - refactor, this is a confusing mix of model and controller / parser
         try:
-            qs = utils.get_url_qs(raw_rec.url)
+            #import pdb; pdb.set_trace()
+            if raw_rec.payload and len(raw_rec.payload) > 20:
+                qs = json.loads(raw_rec.payload)  # OTP 2.x graphql
+                modes = utils.get_modes_otp2(qs)
+            else:
+                qs = utils.get_url_qs(raw_rec.url)
+                modes = utils.get_modes_otp1(qs)
+
             self.parse_from(qs)
             self.parse_to(qs)
-            self.parse_modes(qs)
+            self.parse_modes(modes)
             self.parse_companies(qs)
             self.apply_filters(raw_rec.url)
         except:
@@ -68,6 +77,7 @@ class ProcessedRequests(Base):
 
     def apply_filters(self, url, fltval=-222):
         """ filter out uptime test urls, etc... """
+        #import pdb; pdb.set_trace()        
         if self.filter_request is None:
             if 'fromPlace=PDX' in url and ('toPlace=ZOO' in url or 'toPlace=SW%20Zoo%20Rd' in url):
                 self.filter_request = fltval
@@ -99,7 +109,9 @@ class ProcessedRequests(Base):
         app_name = def_val
 
         tora = "TORA (trimet.org)"
+        rtp = "RTP (rtp.trimet.org)"
         call = "CALL (call.trimet.org)"
+        call2 = "CALL2 (call.trimet.org)"
         imap = "MAP (maps.trimet.org)"
         mob = "MOBILITY MAP (mobilitymap.trimet.org)"
         mod = "MOD (newplanner.trimet.org)"
@@ -112,8 +124,10 @@ class ProcessedRequests(Base):
 
         if len(rec.referer) > 3:
             referer = rec.referer.lower()
-            if 'call-test' in referer or 'test.trimet' in referer:
+            if 'localhost:8000' in referer or 'labs' in referer or 'test.trimet' in referer:
                 app_name = TEST_SYSTEM
+            elif 'call-test' in referer:
+                app_name = call2
             elif 'call' in referer:
                 app_name = call
             elif 'newplanner' in referer or 'betaplanner' in referer:
@@ -122,7 +136,7 @@ class ProcessedRequests(Base):
                 app_name = imap
             elif 'mobilitymap' in referer:
                 app_name = mob
-            elif 'labs' in referer or 'beta' in referer:
+            elif 'trimet.org' in referer or 'beta.trimet.org' in referer:
                 app_name = tora
 
         if utils.is_mod_planner(rec.url):
@@ -132,27 +146,35 @@ class ProcessedRequests(Base):
         elif utils.is_old_trimet(rec.url):
             app_name = old
 
+        if utils.is_developer_api(rec.url):
+            rec.is_api = True
+            if app_name is def_val:
+                app_name = api
+
         if rec.browser and len(rec.browser) > 3:
             browser = rec.browser.lower()
             if 'java' in browser:
                 app_name = api
+            if 'nagios' in browser:
+                app_name = test
             if 'python' in browser and utils.is_pdx_zoo(rec.url):
                 app_name = test
             if 'pdx%20bus' in browser:
                 app_name = pdxbus
+                #print(rec.__dict__)
             if 'pdx%20tran' in browser:
                 app_name = pdxtransit
 
-        if utils.is_developer_api(rec.url):
-            rec.is_api = True
-            if app_name is def_val:
-                app_name = api 
+        if app_name == def_val:
+            #import pdb; pdb.set_trace()
+            #print(rec.__dict__)
+            pass
 
         return app_name
 
     def parse_from(self, qs):
         ret_val = True
-        lat,lon = utils.just_lat_lon(qs.get('fromPlace')[0])
+        lat,lon = utils.just_lat_lon(qs.get('fromPlace'))
         if utils.is_valid_lat_lon(lat, lon):
             self.from_lat = lat
             self.from_lon = lon
@@ -163,7 +185,7 @@ class ProcessedRequests(Base):
 
     def parse_to(self, qs):
         ret_val = True
-        lat,lon = utils.just_lat_lon(qs.get('toPlace')[0])
+        lat,lon = utils.just_lat_lon(qs.get('toPlace'))
         if utils.is_valid_lat_lon(lat, lon):
             self.to_lat = lat
             self.to_lon = lon
@@ -172,13 +194,12 @@ class ProcessedRequests(Base):
             ret_val = False
         return ret_val
 
-    def parse_modes(self, qs):
+    def parse_modes(self, modes):
         """
            BUS, TRAIN, (GONDOLA, BOAT, etc...), ala transit modes
            [BIKE or BIKE_SHARE] [CAR or CAR_SHARE] [SCOOTER or SCOOTER_SHARE] [RIDE_SHARE]
            or WALK_ONLY or BIKE_ONLY or BIKE_SHARE_ONLY
         """
-        modes = qs.get('mode')[0].upper().strip()
 
         # step 1: handle transit modes ... distilled down to just BUS,TRAIN (note order important)
         if "BUS" in modes:
@@ -191,31 +212,45 @@ class ProcessedRequests(Base):
         if "CAR_PARK" in modes:
             self.modes = utils.append_string(self.modes, "CAR")  # Drive to Park & Ride
 
-        # step 2: bike
-        if "BICYCLE_RENT" in modes:
+        # step 2: bike - "mode":"BICYCLE","qualifier":"RENT"
+        if 'RENT' in modes and 'BICYCLE' in modes:
+            self.modes = utils.append_string(self.modes, "BIKE_SHARE")
+        elif "BICYCLE_RENT" in modes:
             self.modes = utils.append_string(self.modes, "BIKE_SHARE")
         elif "BICYCLE" in modes:
             self.modes = utils.append_string(self.modes, "BIKE")
 
-        # step 3: shared modes
+        # step 3: shared car
         if "CAR_HAIL" in modes:
             self.modes = utils.append_string(self.modes, "CAR_SHARE")
-        if "MICROMOBILITY_RENT" in modes:
+
+        # step 4: shared car
+        if utils.is_match_any(["MICROMOBILITY_RENT", "SCOOTER_RENT"], modes):
             self.modes = utils.append_string(self.modes, "SCOOTER_SHARE")
-        elif "MICROMOBILITY" in modes:
+        elif utils.is_match_any(["MICROMOBILITY", "SCOOTER"], modes):
             self.modes = utils.append_string(self.modes, "SCOOTER")
 
-        # step 4: walk / bike / etc... only
+        # step 5: walk / bike / etc... only
         if self.modes is None: self.modes = "WALK_ONLY"
         elif self.modes == "BIKE": self.modes = "BIKE_ONLY"
         elif self.modes == "BIKE_SHARE": self.modes = "BIKE_SHARE_ONLY"
+        elif self.modes == "BICYCLE_RENT": self.modes = "BIKE_SHARE_ONLY"
         elif self.modes == "SCOOTER": self.modes = "SCOOTER_ONLY"
         elif self.modes == "SCOOTER_SHARE": self.modes = "SCOOTER_SHARE_ONLY"
 
+        #print(modes)
+
     def parse_companies(self, qs):
-        self.companies = qs.get('companies', [None])[0]
-        if self.companies and self.companies == "NaN":
-            self.companies = None
+        """
+        "allowedVehicleRentalNetworks":["lyft_pdx"]
+        """
+        c = qs.get('companies', [None])[0]
+        if c is None:
+            c = qs.get("allowedVehicleRentalNetworks", None)
+        if c == "NaN":
+            c = None
+        #if c and "{" in c:
+        self.companies = c
 
     def to_csv_dict(self):
         """
@@ -227,12 +262,13 @@ class ProcessedRequests(Base):
         """
         ua = utils.clean_useragent(self.log.browser)
         browser = utils.get_browser(ua)
+        url = utils.to_url(self.log)
 
         ret_val = {
             'ip_hash': self.ip_hash,
             'app_name': self.app_name,
             'date': self.log.date,
-            'url': self.log.url,
+            'url': url,
             'modes': self.modes,
             'companies': self.companies,
             'from_lat': self.from_lat,
@@ -278,7 +314,6 @@ class ProcessedRequests(Base):
         """
         post process log junk
         """
-        # import pdb; pdb.set_trace()
         session = utils.make_session(False)
         cls.dedupe(session)
         cls.filter_repeated_bot_requests(session)
@@ -287,7 +322,6 @@ class ProcessedRequests(Base):
     def dedupe(cls, session):
         try:
             # step 1: dedup requests -- batch into buck of requests by user, then compare URLs for 'sameness'
-            #import pdb; pdb.set_trace()
             n = session.query(ProcessedRequests.ip_hash,  func.count(ProcessedRequests.ip_hash).label("count")).group_by(ProcessedRequests.ip_hash).all()
             for i in n:
                 if i.count > 1:
@@ -298,9 +332,13 @@ class ProcessedRequests(Base):
                         z = m+1
                         while z < len(nreqs):
                             l = nreqs[z]
-                            if l and l.filter_request is None and l.log.url == r.log.url:
-                                # print(r)
-                                l.filter_request = r.log_id
+                            if l and l.filter_request is None:
+                                #import pdb; pdb.set_trace()
+                                if len(l.log.payload) > 10:
+                                    if l.log.payload == r.log.payload:
+                                        l.filter_request = r.log_id
+                                elif l.log.url == r.log.url:
+                                    l.filter_request = r.log_id
                             z += 1
                     session.commit()
         except Exception as e:

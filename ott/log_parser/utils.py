@@ -1,7 +1,7 @@
 from email.policy import default
 import hmac
 import hashlib
-from tkinter.messagebox import NO
+ #from tkinter.messagebox import NO  # no idea why needed (Aug 2025)
 from tokenize import Number
 import urllib
 from dateutil import parser as dateutil_parser
@@ -9,6 +9,7 @@ from dateutil import parser as dateutil_parser
 from ott.utils.parse.cmdline import db_cmdline
 from ott.utils import file_utils
 
+import json
 import logging
 log = logging.getLogger(__file__)
 
@@ -94,11 +95,12 @@ def parse_transit_modes(modes: str):
     return ret_val
 
 
-def convert_apache_dt(dt):
-    """ break '26/Jan/2021:10:36:23 -0800' into date and time pieces, then parse those as string dateutil"""
+def convert_apache_dt(dt, def_val=None):
+    """ break  '10/Aug/2025:15:47:30 -0700' '26/Jan/2021:10:36:23 -0800' into date and time pieces, then parse those as string dateutil """
     # NOTE: getting rid of timezone, which is messing with the date/time on linux
     #       OLD format with TZ dateutil_parser.parse(dt[:11] + " " + dt[12:])
-    return dateutil_parser.parse(dt[:11] + " " + dt[12:20])
+    ret_val = dateutil_parser.parse(dt[:11] + " " + dt[12:20])
+    return ret_val
 
 
 def is_match_all(matches: list, string: str):
@@ -186,9 +188,40 @@ def just_name_of_ncoord(named_coord, def_val=None):
     return ret_val
 
 
+def get_modes_otp2(qs):
+    modes = ""
+    for i, z in enumerate(qs.get('modes')):
+        m = z.get('mode', "")
+        if z.get('qualifier', None):
+            m = "{}_{}".format(m, z.get('qualifier'))  # eg: CAR_PARK, BICYCLE_SHARE
+        if i > 0:
+            modes += ","
+        modes += m
+    modes = str(modes).upper().strip()
+    return modes
+
+
+def get_modes_otp1(qs):
+    return qs.get('mode')[0].upper().strip()
+
+
+def encode(p):
+    return urllib.parse.quote_plus(p)
+
+
+def to_url(log):
+    ret_val = log.url
+    if log.payload and len(log.payload) > 10 and '?' not in log.url:
+        pl = json.loads(log.payload)  # OTP 2.x graphql
+        ret_val = "{}home/planner-trip/?fromPlace={}&toPlace={}".format(log.referer, encode(pl.get('fromPlace')), encode(pl.get('toPlace')))
+    return ret_val
+
+
 def just_lat_lon(named_coord):
     lat = lon = None
     try:
+        if isinstance(named_coord, list):
+            named_coord = named_coord[0]
         s = named_coord
         if "::" in named_coord:
             s = named_coord.split("::")[1]
