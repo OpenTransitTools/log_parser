@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "log_parser"
+version = "1.1.0"
+description = "Open Transit Tools - parse server log files / OTP trip plan requests"
+authors = ["Frank Purcell <fxpurcell@gmail.com>"]
+license = "Mozilla 2.x"
+readme = "README.md"
+packages = [{include = "ott/log_parser"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+sqlalchemy = "*"
+geoalchemy2 = "*"
+psycopg2-binary = "*"
+boltons = "*"
+parse = "*"
+python-dateutil = "*"
+user-agents = "*"
+haversine = "*"
+
+"ott.utils" = {git = "https://github.com/OpenTransitTools/utils.git", branch="rtp"}
+#"ott.utils" = { path = "../utils/", develop = true }
+
+[tool.poetry.scripts]
+demo-stress = "ott.tests.utils.threads:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
