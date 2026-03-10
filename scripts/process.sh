@@ -16,6 +16,7 @@ poetry run stats > stats.txt
 mv ./trip_requests.csv ~/var/otp_trips/${DT}_trips.csv
 mv ./stats.txt ~/var/otp_trips_transferred/${DT}_stats.txt
 
-# remove temp log dir
+# backup log dir to tmp
+# note: rj-pd-mapetl server's /tmp is too small to copy
 #rm -rf /tmp/$OUT_DIR
 #mv ~/$OUT_DIR /tmp
