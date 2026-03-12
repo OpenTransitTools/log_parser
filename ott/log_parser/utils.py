@@ -206,7 +206,13 @@ def get_modes_otp1(qs):
 
 
 def encode(p):
-    return urllib.parse.quote_plus(p)
+    ret_val = p
+    try:
+        ret_val = urllib.parse.quote_plus(p)
+    except:
+        import pdb; pdb.set_trace()
+        pass
+    return ret_val
 
 
 def to_url(log):

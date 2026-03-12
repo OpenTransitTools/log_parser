@@ -13,11 +13,11 @@ def parse_modsec_audit_log(filename):
     """
     written by Claude (github) in Aug 2025 (with a couple hacks by Frank)
 
-    seemingly great job (almost) at reading the A-Z blocks for each unique session 
+    seemingly great job (almost) at reading the A-Z blocks for each unique session
     opens a mod_security2 log file, and returns a list of dicts, where each dict
-    is the unique request, broken up by sections.  
-    
-    For this project, we're mostly interested in section 'C', which contains the 
+    is the unique request, broken up by sections.
+
+    For this project, we're mostly interested in section 'C', which contains the
     graphql POST payload input into OTP.  We also want other sections, like the
     referrer and device used, etc...
     """
@@ -25,7 +25,7 @@ def parse_modsec_audit_log(filename):
     with open(filename, 'r', encoding='utf-8', errors='ignore') as f:
         content = f.read()
 
-    # hack: add some junk before content, b/c if no junk the first record will get culled via the 'next()' 
+    # hack: add some junk before content, b/c if no junk the first record will get culled via the 'next()'
     content = "\n\n" + content
 
     # Split into entries by boundary lines like '---abc123-A---'
@@ -79,32 +79,39 @@ def parse_section_b(req):
     Referer: https://labs-5.trimet.org/
     User-Agent: Mozilla/5.0 (Win...
     """
-    user_agent = ""    
+    user_agent = ""
     referer = ""
     url = ""
+    fwd = ""
 
     sec_b = req.get("B", None)
-    try:    
-        #import pdb; pdb.set_trace()
+    try:
         ua = re.search(r"User-Agent: (.*)\n", sec_b)
         user_agent = ua.group(1) if ua else ""
+        #import pdb; pdb.set_trace()
     except Exception as e:
         pass
 
-    try:    
+    try:
         r = re.search(r"Referer: (.*)\n", sec_b)
         referer = r.group(1) if r else ""
     except Exception as e:
         pass
 
-    try:    
+    try:
         u = re.search(r"POST (.*) HTTP.*\n", sec_b)
         url = u.group(1) if u else ""
     except Exception as e:
         pass
 
+    try:
+        f = re.search(r"X-Forwarded-For: (.*)(\n|$)", sec_b)
+        fwd = f.group(1) if f else ""
+        #import pdb; pdb.set_trace()
+    except Exception as e:
+        pass
 
-    return user_agent, url, referer
+    return user_agent, url, referer, fwd
 
 
 def parse_section_c(req):
@@ -155,16 +162,19 @@ def parse_raw_request(req):
     parse out the various 'raw' elements from a given mod_security2 log record (dict)
     parser.py attribute names: '{ip} - - [{apache_dt}] "{meth} {url} {http}" {code} {size} "{referer}" "{browser}"\n'
     """
+    #import pdb; pdb.set_trace()
     rec = {}
 
     date, ip = parse_section_a(req)
     rec['ip'] = ip
     rec['apache_dt'] = date
 
-    user_agent, url, referer = parse_section_b(req)
+    user_agent, url, referer, fwd = parse_section_b(req)
     rec['browser'] = user_agent
     rec['url'] = url
     rec['referer'] = referer
+    if fwd and len(fwd) > 5:
+        rec['ip'] = f"{ip}, {fwd}"
 
     payload = parse_section_c(req)
     rec['payload'] = payload
@@ -193,9 +203,10 @@ def parse_log_file(file: os.PathLike):
     parsed_entries = parse_modsec_audit_log(file)
     for e in parsed_entries:
         rec = parse_raw_request(e)
+        #import pdb; pdb.set_trace()
         if rec and rec.get('url', None):
             url = rec.get('url', "")
-            if 'atisExe' not in url and 'solr/select' not in url:
+            if 'gtfs/v' in url:  # filter recods to just routing urls, ala "POST /rtp/gtfs/v1 HTTP/1.1" line
                 ret_val.append(rec)
     return ret_val
 
@@ -217,4 +228,3 @@ def simple_test(parse=True):
                 #break
             print("=" * 60)
             print()
-        
