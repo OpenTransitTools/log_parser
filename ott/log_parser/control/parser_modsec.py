@@ -74,9 +74,9 @@ def parse_section_a(req):
 
 def parse_section_b(req):
     """
-    section b has request headers
+    section b contains request headers, ala:
     POST /rtp/gtfs/v1 HTTP/1.1
-    Referer: https://labs-5.trimet.org/
+    Referer: https://trimet.org/
     User-Agent: Mozilla/5.0 (Win...
     """
     user_agent = ""
