@@ -44,6 +44,7 @@ def parse_modsec_audit_log(filename):
         next(section_it)  # skip content before first section
         for section_letter, section_content in zip(section_it, section_it):
             entry_dict[section_letter] = section_content.strip()
+
         entries.append(entry_dict)
     return entries
 
@@ -203,11 +204,18 @@ def parse_log_file(file: os.PathLike):
     parsed_entries = parse_modsec_audit_log(file)
     for e in parsed_entries:
         rec = parse_raw_request(e)
-        #import pdb; pdb.set_trace()
+
+        # filter records to just planner
         if rec and rec.get('url', None):
+            # filter 1: just routing urls, ala "POST /rtp/gtfs/v1 HTTP/1.1" line
             url = rec.get('url', "")
-            if 'gtfs/v' in url:  # filter recods to just routing urls, ala "POST /rtp/gtfs/v1 HTTP/1.1" line
-                ret_val.append(rec)
+            if 'gtfs/v' in url:
+                #import pdb; pdb.set_trace()
+
+                # filter 2: only trip plans, so 'from' and 'to' need to be in the request
+                payload = rec.get('payload', {})
+                if 'from' in payload and 'to' in payload:
+                    ret_val.append(rec)
     return ret_val
 
 
