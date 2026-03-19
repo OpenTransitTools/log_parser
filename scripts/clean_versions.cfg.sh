@@ -1,3 +1,0 @@
-echo "[versions]
-
-" > versions.cfg

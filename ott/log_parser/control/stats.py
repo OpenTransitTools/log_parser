@@ -49,6 +49,7 @@ class Stats(object):
 
 
 def main():
+    #import pdb; pdb.set_trace()
     session = utils.make_session(False)
     s = Stats(session)
     s.print()

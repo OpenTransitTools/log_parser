@@ -154,7 +154,7 @@ def obfuscate(input, key=u'key'):
     return digest
 
 
-def cmd_line_loader(prog_name='log_parser/bin/loader', sub_dirs=["maps8", "maps9", "maps10"]):
+def cmd_line_loader(prog_name='log_parser/bin/loader', sub_dirs=[""]):
     parser = db_cmdline.db_parser(prog_name, url_required=False)
     parser.add_argument(
         '--log_directory', '--logs', '-logs', '-l',
@@ -206,7 +206,13 @@ def get_modes_otp1(qs):
 
 
 def encode(p):
-    return urllib.parse.quote_plus(p)
+    ret_val = p
+    try:
+        ret_val = urllib.parse.quote_plus(p)
+    except:
+        #import pdb; pdb.set_trace()
+        pass
+    return ret_val
 
 
 def to_url(log):

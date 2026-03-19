@@ -1,7 +1,7 @@
 import abc
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer
-from geoalchemy2 import func
+from geoalchemy2 import functions as func
 from ott.utils import geo_utils
 
 import logging
