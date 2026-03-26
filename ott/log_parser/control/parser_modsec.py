@@ -214,7 +214,7 @@ def parse_log_file(file: os.PathLike):
 
                 # filter 2: only trip plans, so 'from' and 'to' need to be in the request
                 payload = rec.get('payload', {})
-                if 'from' in payload and 'to' in payload:
+                if payload and 'from' in payload and 'to' in payload:
                     ret_val.append(rec)
     return ret_val
 
