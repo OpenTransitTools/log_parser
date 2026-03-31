@@ -205,6 +205,22 @@ def get_modes_otp1(qs):
     return qs.get('mode')[0].upper().strip()
 
 
+def get_banned_agencies(qs):
+    """
+    convert the banned agencies to a list of strings
+    "banned":{"agencies":"TRIMET:PSC,TRIMET:TRAM,SAM:86"}
+    """
+    ret_val = []
+    try:
+        ba = qs.get('banned', {}).get('agencies', {})
+        ret_val = [a.strip() for a in ba.split(',')]
+    except:
+        pass
+
+    return ret_val
+
+
+
 def encode(p):
     ret_val = p
     try:

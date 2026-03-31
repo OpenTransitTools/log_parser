@@ -25,6 +25,7 @@ class ProcessedRequests(Base):
     app_name = Column(String(512), default="unknown")
 
     modes = Column(String())
+    agencies = Column(String())
     companies = Column(String())  # biketown, uber (eventually lyft), e-scooter company (or companies)
 
     from_lat = Column(Float())
@@ -55,7 +56,6 @@ class ProcessedRequests(Base):
         self.ip_hash = utils.obfuscate(raw_rec.ip)
         self.app_name = self.get_app_name(raw_rec)
 
-
         # TODO - refactor, this is a confusing mix of model and controller / parser
         try:
             #import pdb; pdb.set_trace()
@@ -68,6 +68,7 @@ class ProcessedRequests(Base):
 
             self.parse_from(qs)
             self.parse_to(qs)
+            self.parse_agencies(qs)
             self.parse_modes(modes)
             self.parse_companies(qs)
             self.apply_filters(raw_rec.url)
@@ -93,12 +94,14 @@ class ProcessedRequests(Base):
                 self.filter_request = fltval + 5
             if 'fromPlace=S+River+Pkwy' in url and 'toPlace=Gateway+Transit+Center' in url:
                 self.filter_request = fltval + 6
+            if 'UPTEST' in url or 'UPTIME_TEST' in url:
+                self.filter_request = fltval + 7
             if "OLD" in self.app_name:
                 if self.modes == "WALK_ONLY" and '%20%26%20' in self.log.url:
                     # note: OLD planner WALK_ONLY trips using 'intersections' are mostly (totally) robots (i.e., search 
                     # engine and Knowlege AI junk). Better solution would be relating OLD app 'proxy' trips to original
                     # traffic and looking at referrer, but that's a TODO item... 
-                    self.filter_request = fltval + 7
+                    self.filter_request = fltval + 8
                     pass
             if self.app_name == TEST_SYSTEM:
                 self.filter_request = fltval + 55
@@ -178,7 +181,8 @@ class ProcessedRequests(Base):
         if utils.is_valid_lat_lon(lat, lon):
             self.from_lat = lat
             self.from_lon = lon
-        else:        
+        else:
+            #import pdb; pdb.set_trace()
             self.filter_request = -333
             ret_val = False
         return ret_val
@@ -189,16 +193,47 @@ class ProcessedRequests(Base):
         if utils.is_valid_lat_lon(lat, lon):
             self.to_lat = lat
             self.to_lon = lon
-        else:        
+        else:
+            #import pdb; pdb.set_trace()
             self.filter_request = -333
             ret_val = False
         return ret_val
 
+    def parse_agencies(self, qs):
+        """
+        return the list of agencies implied in the request
+        will look at the banned agencies param, and trim the list of possible request agencies
+        """
+        agency_map = {
+            "TRIMET:TRAM":"Aerial Tram",
+            "CLACKAMAS":"Clackamas",
+            "CTRAN":"C-TRAN",
+            "CTRAN_FLEX":"The Current",
+            "MULT":"Multnomah",
+            "RIDECONNECTION:":"Ride Connection",
+            "SAM":"SAM",
+            "SMART":"SMART",
+            "WASH_FLEX":"SPOT",
+            "TRIMET:PSC":"Streetcar",
+            "TRIMET:TRIMET":"TriMet",
+            "WAPARK":"Washington Park",
+        }
+
+        # filter banned agencies from the above list
+        for b in utils.get_banned_agencies(qs):
+            if b in agency_map:
+                agency_map.pop(b)
+            elif b.split(":")[0] in agency_map:
+                agency_map.pop(b.split(":")[0])
+
+        # convert the filtered list to a comma separated string
+        self.agencies = ",".join(agency_map.values())
+
     def parse_modes(self, modes):
         """
-           BUS, TRAIN, (GONDOLA, BOAT, etc...), ala transit modes
-           [BIKE or BIKE_SHARE] [CAR or CAR_SHARE] [SCOOTER or SCOOTER_SHARE] [RIDE_SHARE]
-           or WALK_ONLY or BIKE_ONLY or BIKE_SHARE_ONLY
+        BUS, TRAIN, (GONDOLA, BOAT, etc...), ala transit modes
+        [BIKE or BIKE_SHARE] [CAR or CAR_SHARE] [SCOOTER or SCOOTER_SHARE] [RIDE_SHARE]
+        or WALK_ONLY or BIKE_ONLY or BIKE_SHARE_ONLY
         """
 
         # step 1: handle transit modes ... distilled down to just BUS,TRAIN (note order important)
