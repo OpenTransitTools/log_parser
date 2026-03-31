@@ -220,7 +220,6 @@ def get_banned_agencies(qs):
     return ret_val
 
 
-
 def encode(p):
     ret_val = p
     try:

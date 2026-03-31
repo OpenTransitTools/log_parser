@@ -60,15 +60,19 @@ class ProcessedRequests(Base):
         try:
             #import pdb; pdb.set_trace()
             if raw_rec.payload and len(raw_rec.payload) > 20:
-                qs = json.loads(raw_rec.payload)  # OTP 2.x graphql
+                # OTP 2.x (e.g., graphql json response)
+                qs = json.loads(raw_rec.payload)
                 modes = utils.get_modes_otp2(qs)
+                tm_only = False
             else:
+                # OTP 1.x (e.g., GET query string)
                 qs = utils.get_url_qs(raw_rec.url)
                 modes = utils.get_modes_otp1(qs)
+                tm_only = True
 
             self.parse_from(qs)
             self.parse_to(qs)
-            self.parse_agencies(qs)
+            self.parse_agencies(qs, tm_only)
             self.parse_modes(modes)
             self.parse_companies(qs)
             self.apply_filters(raw_rec.url)
@@ -199,13 +203,17 @@ class ProcessedRequests(Base):
             ret_val = False
         return ret_val
 
-    def parse_agencies(self, qs):
+    def parse_agencies(self, qs, tm_only=False):
         """
         return the list of agencies implied in the request
         will look at the banned agencies param, and trim the list of possible request agencies
         """
-        agency_map = {
+        tm_map = {
             "TRIMET:TRAM":"Aerial Tram",
+            "TRIMET:PSC":"Streetcar",
+            "TRIMET:TRIMET":"TriMet",
+        }
+        rtp_map = {
             "CLACKAMAS":"Clackamas",
             "CTRAN":"C-TRAN",
             "CTRAN_FLEX":"The Current",
@@ -214,10 +222,12 @@ class ProcessedRequests(Base):
             "SAM":"SAM",
             "SMART":"SMART",
             "WASH_FLEX":"SPOT",
-            "TRIMET:PSC":"Streetcar",
-            "TRIMET:TRIMET":"TriMet",
             "WAPARK":"Washington Park",
         }
+        if tm_only:
+            agency_map = tm_map
+        else:
+            agency_map = tm_map | rtp_map
 
         # filter banned agencies from the above list
         for b in utils.get_banned_agencies(qs):
@@ -305,6 +315,7 @@ class ProcessedRequests(Base):
             'date': self.log.date,
             'url': url,
             'modes': self.modes,
+            'agencies': self.agencies,
             'companies': self.companies,
             'from_lat': self.from_lat,
             'from_lon': self.from_lon,
