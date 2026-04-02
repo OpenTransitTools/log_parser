@@ -1,3 +1,17 @@
+1.5.0 (2026-05-01)
+------------------
+- changes for RTP analytics
+- add agencies column to .csv, listing all RTP agencies in the request
+- add FLEX mode
+
+1.0.0 (2026-01-11)
+------------------
+- parse OTP 2.x requests for updated OTP 2.x request to RTP graph
+
+0.5.0 (2025-09-15)
+------------------
+- parse OTP 2.x POST requests for TriMet-only via apache modsec file
+
 0.0.1 (2021-07-27)
 ------------------
 - initial
