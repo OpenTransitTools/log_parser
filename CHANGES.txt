@@ -1,8 +1,10 @@
 1.5.0 (2026-05-01)
 ------------------
 - changes for RTP analytics
-- add agencies column to .csv, listing all RTP agencies in the request
-- add FLEX mode
+- agencies: add agencies column to .csv, listing all RTP agencies in the request
+- companies: improve the companies field (no more brackets)
+- modes: add FLEX mode
+- 
 
 1.0.0 (2026-01-11)
 ------------------

@@ -282,7 +282,6 @@ class ProcessedRequests(Base):
         elif self.modes == "BICYCLE_RENT": self.modes = "BIKE_SHARE_ONLY"
         elif self.modes == "SCOOTER": self.modes = "SCOOTER_ONLY"
         elif self.modes == "SCOOTER_SHARE": self.modes = "SCOOTER_SHARE_ONLY"
-
         #print(modes)
 
     def parse_companies(self, qs):
@@ -294,7 +293,10 @@ class ProcessedRequests(Base):
             c = qs.get("allowedVehicleRentalNetworks", None)
         if c == "NaN":
             c = None
-        #if c and "{" in c:
+        if c and isinstance(c, list):
+            c = ','.join(str(x) for x in c)
+        if c and 'lyft_pdx' in c:
+            c = c.replace('lyft_pdx', 'BIKETOWN')
         self.companies = c
 
     def to_csv_dict(self):
@@ -330,7 +332,6 @@ class ProcessedRequests(Base):
         """
         process logs from log file(s)
         """
-        # import pdb; pdb.set_trace()
         session = utils.make_session(False)
         try:
             logs = RawLog.query(session)
