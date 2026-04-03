@@ -32,6 +32,10 @@ class ProcessedRequests(Base):
     from_lon = Column(Float())
     to_lat = Column(Float())
     to_lon = Column(Float())
+    ft_stop = Column(String())
+    ft_pr = Column(String())
+    ft_map = Column(String())
+    ft_gps = Column(String())
 
     filter_request = Column(Integer, default=None)
 
@@ -72,6 +76,7 @@ class ProcessedRequests(Base):
 
             self.parse_from(qs)
             self.parse_to(qs)
+            self.parse_from_to_metadata(qs)
             self.parse_agencies(qs, tm_only)
             self.parse_modes(modes)
             self.parse_companies(qs)
@@ -198,10 +203,19 @@ class ProcessedRequests(Base):
             self.to_lat = lat
             self.to_lon = lon
         else:
-            #import pdb; pdb.set_trace()
             self.filter_request = -333
             ret_val = False
         return ret_val
+
+    def parse_from_to_metadata(self, qs):
+        fm = qs.get('fromPlace')
+        to = qs.get('toPlace')
+
+        #import pdb; pdb.set_trace()
+        self.ft_gps = utils.parse_ft_metadata(fm, to, "GPS")
+        self.ft_stop = utils.parse_ft_metadata(fm, to, "STOP")
+        self.ft_pr = utils.parse_ft_pr(fm, to)
+        self.ft_map = utils.parse_ft_map(fm, to)
 
     def parse_agencies(self, qs, tm_only=False):
         """
@@ -322,7 +336,11 @@ class ProcessedRequests(Base):
             'from_lat': self.from_lat,
             'from_lon': self.from_lon,
             'to_lat': self.to_lat,
-            'to_lon': self.to_lon
+            'to_lon': self.to_lon,
+            'ft_stop': self.ft_stop,
+            'ft_pr': self.ft_pr,
+            'ft_map': self.ft_map,
+            'ft_gps': self.ft_gps,
         }
         ret_val.update(browser)
         return ret_val
