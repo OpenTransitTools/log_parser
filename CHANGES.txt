@@ -1,10 +1,16 @@
 1.5.0 (2026-05-01)
 ------------------
 - changes for RTP analytics
-- agencies: add agencies column to .csv, listing all RTP agencies in the request
+- agencies: add new 'agencies' column to .csv, listing all RTP agencies in the request
 - companies: improve the companies field (no more brackets)
 - modes: add FLEX mode
-- 
+- from + to metadata: added 4 new columns to .csv: ft_stop,ft_pr,ft_map,ft_gps, where each element will have
+a value of either: FROM/TO/BOTH/<nothing>
+    - ft_gps: indicates the customer used GPS to select either the start or end point for their trip request
+    - ft_stop: means the customer chose a stop (etiher from the map or geocoder) as start and/or end point(s) in their request
+    - ft_pr: the customer used a Park & Ride (either from the map or geocoder) as start and/or end point(s) in their request
+    - ft_map: the customer clicked on the map to select the start and/or end point(s) in their request
+- moovel: ???
 
 1.0.0 (2026-01-11)
 ------------------
