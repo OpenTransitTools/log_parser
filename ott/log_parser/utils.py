@@ -264,6 +264,15 @@ def parse_ft_map(fm, to):
     return parse_ft_metadata(fm, to, "MAP")
 
 
+def parse_ft_stop(fm, to):
+    """ look for stop metadata in the from and to coords """
+    if "Stop ID" in fm:
+        fm = f"{fm}::STOP"
+    if "Stop ID" in to:
+        to = f"{to}::STOP"
+    return parse_ft_metadata(fm, to, "STOP")
+
+
 def parse_ft_pr(fm, to):
     """ look for park and ride metadata in the from and to coords """
     if "Park & Ride" in fm:

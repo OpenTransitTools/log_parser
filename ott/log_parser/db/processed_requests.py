@@ -213,7 +213,7 @@ class ProcessedRequests(Base):
 
         #import pdb; pdb.set_trace()
         self.ft_gps = utils.parse_ft_metadata(fm, to, "GPS")
-        self.ft_stop = utils.parse_ft_metadata(fm, to, "STOP")
+        self.ft_stop = utils.parse_ft_stop(fm, to)
         self.ft_pr = utils.parse_ft_pr(fm, to)
         self.ft_map = utils.parse_ft_map(fm, to)
 
