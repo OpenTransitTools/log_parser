@@ -256,11 +256,12 @@ class ProcessedRequests(Base):
     def parse_modes(self, modes):
         """
         BUS, TRAIN, (GONDOLA, BOAT, etc...), ala transit modes
-        [BIKE or BIKE_SHARE] [CAR or CAR_SHARE] [SCOOTER or SCOOTER_SHARE] [RIDE_SHARE]
+        [BIKE or BIKE_SHARE] [CAR_PARK or CAR_SHARE] [SCOOTER or SCOOTER_SHARE] [RIDE_SHARE]
         or WALK_ONLY or BIKE_ONLY or BIKE_SHARE_ONLY
         """
 
         # step 1: handle transit modes ... distilled down to just BUS,TRAIN (note order important)
+        #import pdb; pdb.set_trace()
         if "BUS" in modes:
             self.modes = utils.append_string(self.modes, "BUS")
         if "TRANSIT" in modes:
@@ -268,22 +269,22 @@ class ProcessedRequests(Base):
             self.modes = utils.append_string(self.modes, "RAIL")
         if utils.is_match_any(["RAIL", "SUBWAY", "TRAIN", "TRAM", "GONDOLA"], modes):
             self.modes = utils.append_string(self.modes, "RAIL")
-        if "CAR_PARK" in modes:
-            self.modes = utils.append_string(self.modes, "CAR")  # Drive to Park & Ride
+        if "FLEX" in modes:
+            self.modes = utils.append_string(self.modes, "FLEX")
 
         # step 2: bike - "mode":"BICYCLE","qualifier":"RENT"
-        if 'RENT' in modes and 'BICYCLE' in modes:
-            self.modes = utils.append_string(self.modes, "BIKE_SHARE")
-        elif "BICYCLE_RENT" in modes:
+        if "BICYCLE_RENT" in modes:
             self.modes = utils.append_string(self.modes, "BIKE_SHARE")
         elif "BICYCLE" in modes:
             self.modes = utils.append_string(self.modes, "BIKE")
 
-        # step 3: shared car
-        if "CAR_HAIL" in modes:
-            self.modes = utils.append_string(self.modes, "CAR_SHARE")
+        # step 3: car to PR or shared car
+        if "CAR_PARK" in modes:
+            self.modes = utils.append_string(self.modes, "CAR_PARK")  # drive to Park & Ride
+        if utils.is_match_any(["CAR_SHARE", "CAR_HAIL", "CAR_RENT"], modes):
+            self.modes = utils.append_string(self.modes, "CAR_SHARE")  # call all these Uber for now
 
-        # step 4: shared car
+        # step 4: shared scooter
         if utils.is_match_any(["MICROMOBILITY_RENT", "SCOOTER_RENT"], modes):
             self.modes = utils.append_string(self.modes, "SCOOTER_SHARE")
         elif utils.is_match_any(["MICROMOBILITY", "SCOOTER"], modes):
