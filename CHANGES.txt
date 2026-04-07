@@ -1,6 +1,6 @@
 1.5.0 (2026-05-01)
 ------------------
-- changes for RTP analytics
+- many changes made for RTP (Regional Trip Planner) analytics
 - agencies: add new 'agencies' column to .csv, listing all RTP agencies in the request
 - companies: improve the companies field (no more brackets)
 - modes: add FLEX mode
@@ -10,7 +10,13 @@ a value of either: FROM/TO/BOTH/<nothing>
     - ft_stop: means the customer chose a stop (etiher from the map or geocoder) as start and/or end point(s) in their request
     - ft_pr: the customer used a Park & Ride (either from the map or geocoder) as start and/or end point(s) in their request
     - ft_map: the customer clicked on the map to select the start and/or end point(s) in their request
-- moovel: ???
+- .csv column changes:
+  OLD: ip_hash,app_name,date,url,modes,         companies,from_lat,from_lon,to_lat,to_lon,                            brand,device,os,os_version,browser,browser_version
+  NEW: ip_hash,app_name,date,url,modes,agencies,companies,from_lat,from_lon,to_lat,to_lon,ft_stop,ft_pr,ft_map,ft_gps,brand,device,os,os_version,browser,browser_version
+- data examples:
+  ip_hash,app_name,date,url,modes,agencies,companies,from_lat,from_lon,to_lat,to_lon,ft_stop,ft_pr,ft_map,ft_gps,brand,device,os,os_version,browser,browser_version
+  b3x03d4,TORA,<datetime>,<url>,"BUS,BIKE_SHARE","TriMet,C-TRAN,SAM","BIKETOWN,LIME",45.5,-122.5,45.6,-122.3,TO,,,FROM,Pebble,K,Android,10,Chrome,14.0.0
+  b3x03d4,TORA,<datetime>,<url>,"BUS,CAR_PARK",,,45.5,-122.5,45.6,-122.3,,BOTH,,,Pebble,K,Android,10,Chrome,14.0.0
 
 1.0.0 (2026-01-11)
 ------------------
