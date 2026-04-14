@@ -25,12 +25,17 @@ class ProcessedRequests(Base):
     app_name = Column(String(512), default="unknown")
 
     modes = Column(String())
+    agencies = Column(String())
     companies = Column(String())  # biketown, uber (eventually lyft), e-scooter company (or companies)
 
     from_lat = Column(Float())
     from_lon = Column(Float())
     to_lat = Column(Float())
     to_lon = Column(Float())
+    ft_stop = Column(String())
+    ft_pr = Column(String())
+    ft_map = Column(String())
+    ft_gps = Column(String())
 
     filter_request = Column(Integer, default=None)
 
@@ -55,19 +60,24 @@ class ProcessedRequests(Base):
         self.ip_hash = utils.obfuscate(raw_rec.ip)
         self.app_name = self.get_app_name(raw_rec)
 
-
         # TODO - refactor, this is a confusing mix of model and controller / parser
         try:
             #import pdb; pdb.set_trace()
             if raw_rec.payload and len(raw_rec.payload) > 20:
-                qs = json.loads(raw_rec.payload)  # OTP 2.x graphql
+                # OTP 2.x (e.g., graphql json response)
+                qs = json.loads(raw_rec.payload)
                 modes = utils.get_modes_otp2(qs)
+                tm_only = False
             else:
+                # OTP 1.x (e.g., GET query string)
                 qs = utils.get_url_qs(raw_rec.url)
                 modes = utils.get_modes_otp1(qs)
+                tm_only = True
 
             self.parse_from(qs)
             self.parse_to(qs)
+            self.parse_from_to_metadata(qs)
+            self.parse_agencies(qs, tm_only)
             self.parse_modes(modes)
             self.parse_companies(qs)
             self.apply_filters(raw_rec.url)
@@ -93,12 +103,14 @@ class ProcessedRequests(Base):
                 self.filter_request = fltval + 5
             if 'fromPlace=S+River+Pkwy' in url and 'toPlace=Gateway+Transit+Center' in url:
                 self.filter_request = fltval + 6
+            if 'UPTEST' in url or 'UPTIME_TEST' in url:
+                self.filter_request = fltval + 7
             if "OLD" in self.app_name:
                 if self.modes == "WALK_ONLY" and '%20%26%20' in self.log.url:
                     # note: OLD planner WALK_ONLY trips using 'intersections' are mostly (totally) robots (i.e., search 
                     # engine and Knowlege AI junk). Better solution would be relating OLD app 'proxy' trips to original
                     # traffic and looking at referrer, but that's a TODO item... 
-                    self.filter_request = fltval + 7
+                    self.filter_request = fltval + 8
                     pass
             if self.app_name == TEST_SYSTEM:
                 self.filter_request = fltval + 55
@@ -178,7 +190,8 @@ class ProcessedRequests(Base):
         if utils.is_valid_lat_lon(lat, lon):
             self.from_lat = lat
             self.from_lon = lon
-        else:        
+        else:
+            #import pdb; pdb.set_trace()
             self.filter_request = -333
             ret_val = False
         return ret_val
@@ -189,19 +202,66 @@ class ProcessedRequests(Base):
         if utils.is_valid_lat_lon(lat, lon):
             self.to_lat = lat
             self.to_lon = lon
-        else:        
+        else:
             self.filter_request = -333
             ret_val = False
         return ret_val
 
+    def parse_from_to_metadata(self, qs):
+        fm = qs.get('fromPlace')
+        to = qs.get('toPlace')
+
+        #import pdb; pdb.set_trace()
+        self.ft_gps = utils.parse_ft_metadata(fm, to, "GPS")
+        self.ft_stop = utils.parse_ft_stop(fm, to)
+        self.ft_pr = utils.parse_ft_pr(fm, to)
+        self.ft_map = utils.parse_ft_map(fm, to)
+
+    def parse_agencies(self, qs, tm_only=False):
+        """
+        return the list of agencies implied in the request
+        will look at the banned agencies param, and trim the list of possible request agencies
+        """
+        tm_map = {
+            "TRIMET:TRAM":"Aerial Tram",
+            "TRIMET:PSC":"Streetcar",
+            "TRIMET:TRIMET":"TriMet",
+        }
+        rtp_map = {
+            "CLACKAMAS":"Clackamas",
+            "CTRAN":"C-TRAN",
+            "CTRAN_FLEX":"The Current",
+            "MULT":"Multnomah",
+            "RIDECONNECTION:":"Ride Connection",
+            "SAM":"SAM",
+            "SMART":"SMART",
+            "WASH_FLEX":"SPOT",
+            "WAPARK":"Washington Park",
+        }
+        if tm_only:
+            agency_map = tm_map
+        else:
+            agency_map = tm_map | rtp_map
+
+        # filter banned agencies from the above list
+        for b in utils.get_banned_agencies(qs):
+            if b in agency_map:
+                agency_map.pop(b)
+            elif b.split(":")[0] in agency_map:
+                agency_map.pop(b.split(":")[0])
+
+        # convert the filtered list to a comma separated string
+        self.agencies = ",".join(agency_map.values())
+
     def parse_modes(self, modes):
         """
-           BUS, TRAIN, (GONDOLA, BOAT, etc...), ala transit modes
-           [BIKE or BIKE_SHARE] [CAR or CAR_SHARE] [SCOOTER or SCOOTER_SHARE] [RIDE_SHARE]
-           or WALK_ONLY or BIKE_ONLY or BIKE_SHARE_ONLY
+        BUS, TRAIN, (GONDOLA, BOAT, etc...), ala transit modes
+        [BIKE or BIKE_SHARE] [CAR_PARK or CAR_SHARE] [SCOOTER or SCOOTER_SHARE] [RIDE_SHARE]
+        or WALK_ONLY or BIKE_ONLY or BIKE_SHARE_ONLY
         """
 
         # step 1: handle transit modes ... distilled down to just BUS,TRAIN (note order important)
+        #import pdb; pdb.set_trace()
         if "BUS" in modes:
             self.modes = utils.append_string(self.modes, "BUS")
         if "TRANSIT" in modes:
@@ -209,22 +269,22 @@ class ProcessedRequests(Base):
             self.modes = utils.append_string(self.modes, "RAIL")
         if utils.is_match_any(["RAIL", "SUBWAY", "TRAIN", "TRAM", "GONDOLA"], modes):
             self.modes = utils.append_string(self.modes, "RAIL")
-        if "CAR_PARK" in modes:
-            self.modes = utils.append_string(self.modes, "CAR")  # Drive to Park & Ride
+        if "FLEX" in modes:
+            self.modes = utils.append_string(self.modes, "FLEX")
 
         # step 2: bike - "mode":"BICYCLE","qualifier":"RENT"
-        if 'RENT' in modes and 'BICYCLE' in modes:
-            self.modes = utils.append_string(self.modes, "BIKE_SHARE")
-        elif "BICYCLE_RENT" in modes:
+        if "BICYCLE_RENT" in modes:
             self.modes = utils.append_string(self.modes, "BIKE_SHARE")
         elif "BICYCLE" in modes:
             self.modes = utils.append_string(self.modes, "BIKE")
 
-        # step 3: shared car
-        if "CAR_HAIL" in modes:
-            self.modes = utils.append_string(self.modes, "CAR_SHARE")
+        # step 3: car to PR or shared car
+        if "CAR_PARK" in modes:
+            self.modes = utils.append_string(self.modes, "CAR_PARK")  # drive to Park & Ride
+        if utils.is_match_any(["CAR_SHARE", "CAR_HAIL", "CAR_RENT"], modes):
+            self.modes = utils.append_string(self.modes, "CAR_SHARE")  # call all these Uber for now
 
-        # step 4: shared car
+        # step 4: shared scooter
         if utils.is_match_any(["MICROMOBILITY_RENT", "SCOOTER_RENT"], modes):
             self.modes = utils.append_string(self.modes, "SCOOTER_SHARE")
         elif utils.is_match_any(["MICROMOBILITY", "SCOOTER"], modes):
@@ -237,7 +297,6 @@ class ProcessedRequests(Base):
         elif self.modes == "BICYCLE_RENT": self.modes = "BIKE_SHARE_ONLY"
         elif self.modes == "SCOOTER": self.modes = "SCOOTER_ONLY"
         elif self.modes == "SCOOTER_SHARE": self.modes = "SCOOTER_SHARE_ONLY"
-
         #print(modes)
 
     def parse_companies(self, qs):
@@ -249,7 +308,10 @@ class ProcessedRequests(Base):
             c = qs.get("allowedVehicleRentalNetworks", None)
         if c == "NaN":
             c = None
-        #if c and "{" in c:
+        if c and isinstance(c, list):
+            c = ','.join(str(x) for x in c)
+        if c and 'lyft_pdx' in c:
+            c = c.replace('lyft_pdx', 'BIKETOWN')
         self.companies = c
 
     def to_csv_dict(self):
@@ -270,11 +332,16 @@ class ProcessedRequests(Base):
             'date': self.log.date,
             'url': url,
             'modes': self.modes,
+            'agencies': self.agencies,
             'companies': self.companies,
             'from_lat': self.from_lat,
             'from_lon': self.from_lon,
             'to_lat': self.to_lat,
-            'to_lon': self.to_lon
+            'to_lon': self.to_lon,
+            'ft_stop': self.ft_stop,
+            'ft_park_n_ride': self.ft_pr,
+            'ft_map': self.ft_map,
+            'ft_gps': self.ft_gps,
         }
         ret_val.update(browser)
         return ret_val
@@ -284,7 +351,6 @@ class ProcessedRequests(Base):
         """
         process logs from log file(s)
         """
-        # import pdb; pdb.set_trace()
         session = utils.make_session(False)
         try:
             logs = RawLog.query(session)

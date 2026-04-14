@@ -1,3 +1,30 @@
+1.5.0 (2026-05-01)
+------------------
+- changes made for RTP (Regional Trip Planner) project analytics
+- agencies: add new 'agencies' column to .csv, listing all RTP agencies in the request
+- companies: improve the companies field (no more brackets that were leaking in)
+- modes: add FLEX mode
+- from + to metadata: added 4 new columns to .csv: ft_stop,ft_pr,ft_map,ft_gps, where each element will have a value of either: FROM/TO/BOTH/<nothing>, where each column reps the following:
+  - ft_gps: indicates the customer used GPS to select either the start or end point for their trip request
+  - ft_stop: means the customer chose a stop (either from the map or geocoder) as start and/or end point(s) in their request
+  - ft_pr: the customer used a Park & Ride (either from the map or geocoder) as start and/or end point(s) in their request
+  - ft_map: the customer clicked on the map to select the start and/or end point(s) in their request
+- .csv column changes:
+  OLD: ip_hash,app_name,date,url,modes,         companies,from_lat,from_lon,to_lat,to_lon,                            brand,device,os,os_version,browser,browser_version
+  NEW: ip_hash,app_name,date,url,modes,agencies,companies,from_lat,from_lon,to_lat,to_lon,ft_stop,ft_pr,ft_map,ft_gps,brand,device,os,os_version,browser,browser_version
+- data examples:
+  ip_hash,app_name,date,url,modes,agencies,companies,from_lat,from_lon,to_lat,to_lon,ft_stop,ft_pr,ft_map,ft_gps,brand,device,os,os_version,browser,browser_version
+  b3x03d4,<app>,<datetime>,<url>,"BUS,SCOOTER_SHARE","TriMet,C-TRAN","BIKETOWN,LIME",45.5,-122.5,45.6,-122.3,TO,,,FROM,Pebble,K,Android,1,Chrome,1.1
+  b3x03d5,<app>,<datetime>,<url>,"BUS,FLEX,CAR_PARK","TriMet,SAM",,,45.5,-122.5,45.6,-122.3,,BOTH,,,Pebble,K,Android,1,Firefox,21.12
+
+1.0.0 (2026-01-11)
+------------------
+- parse OTP 2.x requests for updated OTP 2.x request to RTP graph
+
+0.5.0 (2025-09-15)
+------------------
+- parse OTP 2.x POST requests for TriMet-only via apache modsec file
+
 0.0.1 (2021-07-27)
 ------------------
 - initial

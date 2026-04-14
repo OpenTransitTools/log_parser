@@ -205,6 +205,21 @@ def get_modes_otp1(qs):
     return qs.get('mode')[0].upper().strip()
 
 
+def get_banned_agencies(qs):
+    """
+    convert the banned agencies to a list of strings
+    "banned":{"agencies":"TRIMET:PSC,TRIMET:TRAM,SAM:86"}
+    """
+    ret_val = []
+    try:
+        ba = qs.get('banned', {}).get('agencies', {})
+        ret_val = [a.strip() for a in ba.split(',')]
+    except:
+        pass
+
+    return ret_val
+
+
 def encode(p):
     ret_val = p
     try:
@@ -221,6 +236,50 @@ def to_url(log):
         pl = json.loads(log.payload)  # OTP 2.x graphql
         ret_val = "{}home/planner-trip/?fromPlace={}&toPlace={}".format(log.referer, encode(pl.get('fromPlace')), encode(pl.get('toPlace')))
     return ret_val
+
+
+def parse_ft_metadata(fm, to, tag):
+    """
+    see if there's a tag in the from and/or to coord from the TORA app
+    ex: fromPlace=PDX::45.5,-122.5::MAP, where TORA adds the '::MAP' tag indicating the user clicked on the map to select PDX
+    ex: toPlace=ZOO::45.5,-122.5::GPS, where '::GPS' tells us customer used GPS to determine the to location
+    """
+    ret_val = ""
+    tag = f"::{tag}"
+    if tag in fm and tag in to:
+        ret_val = "BOTH"
+    elif tag in fm:
+        ret_val = "FROM"
+    elif tag in to:
+        ret_val = "TO"
+    return ret_val
+
+
+def parse_ft_map(fm, to):
+    """ look for map click metadata in the from and to coords """
+    if "::Oregon" in fm or "::Washington" in fm:
+        fm = f"{fm}::MAP"
+    if "::Oregon" in to or "::Washington" in to:
+        to = f"{to}::MAP"
+    return parse_ft_metadata(fm, to, "MAP")
+
+
+def parse_ft_stop(fm, to):
+    """ look for stop metadata in the from and to coords """
+    if "Stop ID" in fm:
+        fm = f"{fm}::STOP"
+    if "Stop ID" in to:
+        to = f"{to}::STOP"
+    return parse_ft_metadata(fm, to, "STOP")
+
+
+def parse_ft_pr(fm, to):
+    """ look for park and ride metadata in the from and to coords """
+    if "Park & Ride" in fm and "Stop ID" not in fm:
+        fm = f"{fm}::PR"
+    if "Park & Ride" in to and "Stop ID" not in to:
+        to = f"{to}::PR"
+    return parse_ft_metadata(fm, to, "PR")
 
 
 def just_lat_lon(named_coord):
