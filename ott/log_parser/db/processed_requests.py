@@ -339,7 +339,7 @@ class ProcessedRequests(Base):
             'to_lat': self.to_lat,
             'to_lon': self.to_lon,
             'ft_stop': self.ft_stop,
-            'ft_pr': self.ft_pr,
+            'ft_park_n_ride': self.ft_pr,
             'ft_map': self.ft_map,
             'ft_gps': self.ft_gps,
         }

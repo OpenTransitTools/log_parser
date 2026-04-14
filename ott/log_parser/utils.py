@@ -275,9 +275,9 @@ def parse_ft_stop(fm, to):
 
 def parse_ft_pr(fm, to):
     """ look for park and ride metadata in the from and to coords """
-    if "Park & Ride" in fm:
+    if "Park & Ride" in fm and "Stop ID" not in fm:
         fm = f"{fm}::PR"
-    if "Park & Ride" in to:
+    if "Park & Ride" in to and "Stop ID" not in to:
         to = f"{to}::PR"
     return parse_ft_metadata(fm, to, "PR")
 
