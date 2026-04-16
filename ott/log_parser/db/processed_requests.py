@@ -1,5 +1,4 @@
 from ast import Return
-#import imp -- MARCH 7 2026 .. removed this depricated core util (any errors?)
 from re import S
 from sqlalchemy import Column, String, Boolean, Integer, Float, func, and_
 from sqlalchemy.orm import relationship
@@ -54,11 +53,11 @@ class ProcessedRequests(Base):
         uselist=False, viewonly=True,
     )
 
-    def __init__(self, raw_rec):
+    def __init__(self, raw_rec, ignore_test_system=False):
         super(ProcessedRequests, self)
         self.log_id = raw_rec.id
         self.ip_hash = utils.obfuscate(raw_rec.ip)
-        self.app_name = self.get_app_name(raw_rec)
+        self.app_name = self.get_app_name(raw_rec, ignore_test_system)
 
         # TODO - refactor, this is a confusing mix of model and controller / parser
         try:
@@ -116,7 +115,7 @@ class ProcessedRequests(Base):
                 self.filter_request = fltval + 55
 
     @classmethod
-    def get_app_name(cls, rec, def_val="no idea what app..."):
+    def get_app_name(cls, rec, ignore_test_system=False, def_val="no idea what app..."):
         """ trimet specific -- override me for other agencies / uses """
         app_name = def_val
 
@@ -136,7 +135,7 @@ class ProcessedRequests(Base):
 
         if len(rec.referer) > 3:
             referer = rec.referer.lower()
-            if 'localhost:8000' in referer or 'labs' in referer or 'test.trimet' in referer:
+            if ignore_test_system is False and ('localhost:8000' in referer or 'labs' in referer or 'test.trimet' in referer):
                 app_name = TEST_SYSTEM
             elif 'call-test' in referer:
                 app_name = call2
@@ -158,7 +157,7 @@ class ProcessedRequests(Base):
         elif utils.is_old_trimet(rec.url):
             app_name = old
 
-        if utils.is_developer_api(rec.url):
+        if ignore_test_system is False and utils.is_developer_api(rec.url):
             rec.is_api = True
             if app_name is def_val:
                 app_name = api

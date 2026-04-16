@@ -154,19 +154,28 @@ def obfuscate(input, key=u'key'):
     return digest
 
 
-def cmd_line_loader(prog_name='log_parser/bin/loader', sub_dirs=[""]):
+def cmd_line_loader(prog_name='poetry run loader', sub_dirs=[""]):
     parser = db_cmdline.db_parser(prog_name, url_required=False)
     parser.add_argument(
         '--log_directory', '--logs', '-logs', '-l',
         required=True,
         help="Directory of .log files..."
     )
+    # TODO: why are both logs and files needed?
+    # file_utils.find_files(cmdline.log_directory, cmdline.files, True)
     parser.add_argument(
         '--files', '--ff', '-ff',
         required=False,
         default=".log",
         help="Directory of .log files..."
     )
+    parser.add_argument(
+        '--test_system', '--ts', '-ts',
+        action='store_true',
+        required=False,
+        help="Don't mark any records as coming from a 'test system' (e.g., ability to load test requests and publish things, etc...)."
+    )
+
     cmdline = parser.parse_args()
     files = file_utils.find_files(cmdline.log_directory, cmdline.files, True)
     if len(files) == 0:
