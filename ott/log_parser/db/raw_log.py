@@ -33,6 +33,7 @@ class RawLog(Base):
         self.is_json = rec.get('is_json', False)
         #import pdb; pdb.set_trace()
 
+
 def main():
     from ..control.loader import load_log_file
     session = utils.make_session(False)
