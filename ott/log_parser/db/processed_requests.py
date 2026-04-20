@@ -54,6 +54,7 @@ class ProcessedRequests(Base):
     )
 
     def __init__(self, raw_rec, ignore_test_system=False):
+        #import pdb; pdb.set_trace()
         super(ProcessedRequests, self)
         self.log_id = raw_rec.id
         self.ip_hash = utils.obfuscate(raw_rec.ip)
@@ -86,7 +87,7 @@ class ProcessedRequests(Base):
 
     def apply_filters(self, url, fltval=-222):
         """ filter out uptime test urls, etc... """
-        #import pdb; pdb.set_trace()        
+        #import pdb; pdb.set_trace()
         if self.filter_request is None:
             if 'fromPlace=PDX' in url and ('toPlace=ZOO' in url or 'toPlace=SW%20Zoo%20Rd' in url):
                 self.filter_request = fltval
@@ -346,7 +347,7 @@ class ProcessedRequests(Base):
         return ret_val
 
     @classmethod
-    def process(cls, chunk_size=10000):
+    def process(cls, chunk_size=10000, ignore_test_system=False):
         """
         process logs from log file(s)
         """
@@ -360,7 +361,7 @@ class ProcessedRequests(Base):
                 # step 2: loop thru raw log file entries
                 processed = []
                 for l in logs:
-                    p = ProcessedRequests(l)
+                    p = ProcessedRequests(l, ignore_test_system)
                     processed.append(p)
                     # step 2b: save off the post-process data in 'chunks'
                     if len(processed) > chunk_size:

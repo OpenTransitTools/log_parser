@@ -16,9 +16,10 @@ def load_log_file(file, session):
         recs = parser.parse_log_file(file)
     except:
         recs = None
+
+    # modsec?: with no recs from above, maybe this is a mod_security file containing trip plans
+    #import pdb; pdb.set_trace()
     if recs is None or len(recs) == 0:
-        # with no recs from first parser, maybe this is a mod_security file containing trip plans
-        #import pdb; pdb.set_trace()
         recs = parser_modsec.parse_log_file(file)
 
     if recs and len(recs) > 0:
@@ -28,6 +29,8 @@ def load_log_file(file, session):
             rawlog = RawLog(r)
             logs.append(rawlog)
         RawLog.persist_data(session, logs)
+
+    return
 
 
 def loader():
@@ -45,8 +48,8 @@ def loader():
 
 
 def load_and_post_process():
-    loader()
-    ProcessedRequests.process()
+    files,cmdline = loader()
+    ProcessedRequests.process(ignore_test_system=cmdline.test_system)
     ProcessedRequests.post_process()
 
 
