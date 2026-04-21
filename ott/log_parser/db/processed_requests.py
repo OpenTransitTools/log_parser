@@ -81,9 +81,19 @@ class ProcessedRequests(Base):
             self.parse_modes(modes)
             self.parse_companies(qs)
             self.apply_filters(raw_rec.url)
+            self.check_response(raw_rec.response)
         except:
             self.filter_request = -111
             log.debug("couldn't parse " + raw_rec.url)
+
+    def check_response(self, response):
+        #import pdb; pdb.set_trace()
+        if response is not None:
+            if '"plan":{"itineraries":[{"' in response:
+                print("itins")
+            elif '"itineraries":[]' in response and 'routingErrors' in response and 'code' in response:
+                print("error")
+
 
     def apply_filters(self, url, fltval=-222):
         """ filter out uptime test urls, etc... """
