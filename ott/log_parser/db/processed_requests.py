@@ -124,11 +124,13 @@ class ProcessedRequests(Base):
             return ret_val
 
         def filter_modes():
+            #import pdb; pdb.set_trace()
             m = self.modes
-            if "BUS" not in response: m = m.strip('BUS')
-            if not utils.is_match_any(["RAIL", "SUBWAY", "TRAIN", "TRAM", "GONDOLA"], response): m = m.strip('RAIL')
-            if 'bookingUrl":"http' not in response: m = m.strip("FLEX")
-            m = m.strip(",,")
+            if "BUS" not in response: m = m.replace('BUS', '')
+            if not utils.is_match_any(["RAIL", "SUBWAY", "TRAIN", "TRAM", "GONDOLA"], response): m = m.replace('RAIL', '')
+            # "pickupType":"CALL_AGENCY"
+            if 'bookingUrl":"http' not in response: m = m.replace('FLEX', '')
+            m = m.replace(',,', ',')
             m = m.strip(",$")
             return m
 
