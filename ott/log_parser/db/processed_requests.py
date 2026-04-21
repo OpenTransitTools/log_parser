@@ -86,13 +86,61 @@ class ProcessedRequests(Base):
             self.filter_request = -111
             log.debug("couldn't parse " + raw_rec.url)
 
+    @classmethod
+    def get_agency_map(cls, tm_only=False):
+        tm_map = {
+            "TRIMET:TRAM":"Aerial Tram",
+            "TRIMET:PSC":"Streetcar",
+            "TRIMET:TRIMET":"TriMet",
+        }
+        rtp_map = {
+            "CLACKAMAS":"Clackamas",
+            "CTRAN":"C-TRAN",
+            "CTRAN_FLEX":"The Current",
+            "MULT":"Multnomah",
+            "RIDECONNECTION":"Ride Connection",
+            "SAM":"SAM",
+            "SMART":"SMART",
+            "WASH_FLEX":"SPOT",
+            "WAPARK":"Washington Park",
+        }
+
+        if tm_only:
+            agency_map = tm_map
+        else:
+            agency_map = tm_map | rtp_map
+
+        return agency_map
+
     def check_response(self, response):
+        def find_agencies():
+            agency_map = self.get_agency_map()
+            ag = []
+            for ak in agency_map.keys():
+                if ak in response:
+                    ag.append(agency_map.get(ak))
+
+            ret_val = "" if len(ag) <= 0 else ",".join(ag)
+            return ret_val
+
+        def filter_modes():
+            m = self.modes
+            if "BUS" not in response: m = m.strip('BUS')
+            if not utils.is_match_any(["RAIL", "SUBWAY", "TRAIN", "TRAM", "GONDOLA"], response): m = m.strip('RAIL')
+            if 'bookingUrl":"http' not in response: m = m.strip("FLEX")
+            m = m.strip(",,")
+            m = m.strip(",$")
+            return m
+
         #import pdb; pdb.set_trace()
         if response is not None:
-            if '"plan":{"itineraries":[{"' in response:
-                print("itins")
-            elif '"itineraries":[]' in response and 'routingErrors' in response and 'code' in response:
-                print("error")
+            if '"itineraries":[{' in response:
+                self.agencies = find_agencies()
+                self.modes = filter_modes()
+            elif utils.is_match_all(['"itineraries":[]', 'routingErrors', 'code'], response):
+                self.agencies = None
+                self.modes = None
+                self.companies = None
 
 
     def apply_filters(self, url, fltval=-222):
@@ -232,26 +280,7 @@ class ProcessedRequests(Base):
         return the list of agencies implied in the request
         will look at the banned agencies param, and trim the list of possible request agencies
         """
-        tm_map = {
-            "TRIMET:TRAM":"Aerial Tram",
-            "TRIMET:PSC":"Streetcar",
-            "TRIMET:TRIMET":"TriMet",
-        }
-        rtp_map = {
-            "CLACKAMAS":"Clackamas",
-            "CTRAN":"C-TRAN",
-            "CTRAN_FLEX":"The Current",
-            "MULT":"Multnomah",
-            "RIDECONNECTION:":"Ride Connection",
-            "SAM":"SAM",
-            "SMART":"SMART",
-            "WASH_FLEX":"SPOT",
-            "WAPARK":"Washington Park",
-        }
-        if tm_only:
-            agency_map = tm_map
-        else:
-            agency_map = tm_map | rtp_map
+        agency_map = self.get_agency_map(tm_only)
 
         # filter banned agencies from the above list
         for b in utils.get_banned_agencies(qs):
