@@ -123,15 +123,16 @@ class ProcessedRequests(Base):
             ret_val = "" if len(ag) <= 0 else ",".join(ag)
             return ret_val
 
-        def filter_modes():
+        def filter_modes(def_mode="WALK"):
             #import pdb; pdb.set_trace()
             m = self.modes
             if "BUS" not in response: m = m.replace('BUS', '')
             if not utils.is_match_any(["RAIL", "SUBWAY", "TRAIN", "TRAM", "GONDOLA"], response): m = m.replace('RAIL', '')
-            # "pickupType":"CALL_AGENCY"
-            if 'bookingUrl":"http' not in response: m = m.replace('FLEX', '')
+            if not utils.is_match_any(["CALL_AGENCY", "COORDINATE_WITH_DRIVER"], response): m = m.replace('FLEX', '')
             m = m.replace(',,', ',')
             m = m.strip(",$")
+            if m is None or m == "" or m == ",":
+                m = def_mode
             return m
 
         #import pdb; pdb.set_trace()
@@ -141,8 +142,6 @@ class ProcessedRequests(Base):
                 self.modes = filter_modes()
             elif utils.is_match_all(['"itineraries":[]', 'routingErrors', 'code'], response):
                 self.agencies = None
-                self.modes = None
-                self.companies = None
 
 
     def apply_filters(self, url, fltval=-222):
