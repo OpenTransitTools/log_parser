@@ -27,9 +27,11 @@ test_process = "ott.log_parser.db.processed_requests:main"
 loader = "ott.log_parser.control.loader:main"
 load_and_post_process = "ott.log_parser.control.loader:load_and_post_process"
 publisher = "ott.log_parser.control.publisher:main"
-parser = "ott.log_parser.control.parser:main"
 parser_modsec_test = "ott.log_parser.control.parser_modsec:simple_test"
 report = "ott.log_parser.control.reporter:main"
+
+modes_plus_agencies = "ott.log_parser.view.csv:modes_plus_agencies"
+parser = "ott.log_parser.control.parser:main"
 stats = "ott.log_parser.control.stats:main"
 
 [build-system]
