@@ -242,8 +242,12 @@ def encode(p):
 def to_url(log):
     ret_val = log.url
     if log.payload and len(log.payload) > 10 and '?' not in log.url:
-        pl = json.loads(log.payload)  # OTP 2.x graphql
-        ret_val = "{}home/planner-trip/?fromPlace={}&toPlace={}".format(log.referer, encode(pl.get('fromPlace')), encode(pl.get('toPlace')))
+        #import pdb; pdb.set_trace()
+        try:
+            pl = json.loads(log.payload)  # OTP 2.x graphql
+            ret_val = "{}home/planner-trip/?fromPlace={}&toPlace={}".format(log.referer, encode(pl.get('fromPlace')), encode(pl.get('toPlace')))
+        except Exception as e:
+            pass
     return ret_val
 
 
