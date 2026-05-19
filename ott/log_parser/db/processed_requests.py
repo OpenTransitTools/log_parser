@@ -94,13 +94,13 @@ class ProcessedRequests(Base):
             "TRIMET:TRIMET":"TriMet",
         }
         rtp_map = {
-            "CLACKAMAS":"Clackamas",
-            "CTRAN":"C-TRAN",
-            "CTRAN_FLEX":"The Current",
-            "MULT":"Multnomah",
-            "RIDECONNECTION":"Ride Connection",
-            "SAM":"SAM",
-            "SMART":"SMART",
+            "CLACKAMAS:ADULT":"Clackamas",
+            "CTRAN:ADULT":"C-TRAN",
+            "CTRAN_FLEX:ADULT":"The Current",
+            "MULT:ADULT":"Multnomah",
+            "RIDECONNECTION:ADULT":"Ride Connection",
+            "SAM:ADULT":"SAM",
+            "SMART:ADULT":"SMART",
             "WASH_FLEX":"SPOT",
             "WAPARK":"Washington Park",
         }
