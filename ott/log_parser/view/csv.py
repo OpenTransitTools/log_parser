@@ -13,8 +13,15 @@ def modes_plus_agencies(prog_name='poetry run view_csv', file_name='trip_request
     data = []
     for r in file_utils.read_csv(cmdline.file):
         companies = r.get('agencies').strip()
-        sep = " -> " if len(companies) > 1 else "(COULDN'T PLAN TRIP) "
-        data.append(f"{companies}{sep}{r.get('modes')}")
+        modes = r.get('modes')
+        if len(companies) > 1:
+            sep = " -> " 
+        else:
+            if "BIKE" in modes or "WALK" in modes:
+                sep = ""
+            else:
+                sep = "(COULDN'T PLAN TRIP) "
+        data.append(f"{companies}{sep}{modes}")
     counts = Counter(data)
     for s in sorted(counts.items()):
         print(f"{s[1]:8} {s[0]}")
