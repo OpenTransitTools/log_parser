@@ -136,11 +136,15 @@ class ProcessedRequests(Base):
             return m
 
         #import pdb; pdb.set_trace()
-        if response is not None:
+        if response:
             if '"itineraries":[{' in response:
                 self.agencies = find_agencies()
                 self.modes = filter_modes()
+            elif utils.is_match_all(['errors":[{"message"'], response):
+                self.agencies = None
             elif utils.is_match_all(['"itineraries":[]', 'routingErrors', 'code'], response):
+                self.agencies = None
+            elif utils.is_match_all(['"itineraries":[]', 'routingErrors'], response):
                 self.agencies = None
 
 
@@ -362,6 +366,7 @@ class ProcessedRequests(Base):
                 - request datetime
                 - ???
         """
+        #import pdb; pdb.set_trace()
         ua = utils.clean_useragent(self.log.browser)
         browser = utils.get_browser(ua)
         url = utils.to_url(self.log)
