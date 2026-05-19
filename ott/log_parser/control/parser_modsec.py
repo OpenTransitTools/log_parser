@@ -129,8 +129,13 @@ def parse_section_c(req):
     try:
         if "query" in sec_c:
             if "variables" in sec_c:
-                vars = sec_c.split("variables\":")
-                ret_val = vars[1][:-1]  # return things right of the variables, except for dangling bracket
+                #import pdb; pdb.set_trace()
+                vars = sec_c.split("variables\":")[1]
+                # extra parse step for 'exentsions' data (tuck exenstions into the query json, and keep dangling bracket)
+                if '},"extensions":' in vars:
+                    ret_val = vars.replace('},"extensions":', ',"extensions":')
+                else:
+                    ret_val = vars[:-1]  # return things right of the variables, except for dangling bracket
             else:
                 ret_val = sec_c
     except Exception as e:
