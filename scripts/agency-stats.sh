@@ -16,7 +16,7 @@ echo   >> $OUT_FILE
 echo   >> $OUT_FILE
 
 # agency trips
-for a in Clackamas C-TRAN "Ride Connection" SMART SAM SPOT "Washington Park"
+for a in Clackamas C-TRAN Multnomah "Ride Connection" SMART SAM SPOT "Washington Park"
 do
   echo -n "  Number of $a trips: "                 >> $OUT_FILE
   grep "$a" $F | awk '{sum += $1} END {print sum}' >> $OUT_FILE
