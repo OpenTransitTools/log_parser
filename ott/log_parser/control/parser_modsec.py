@@ -129,13 +129,29 @@ def parse_section_c(req):
     try:
         if "query" in sec_c:
             if "variables" in sec_c:
-                vars = sec_c.split("variables\":")
-                ret_val = vars[1][:-1]  # return things right of the variables, except for dangling bracket
+                #import pdb; pdb.set_trace()
+                vars = sec_c.split("variables\":")[1]
+                # extra parse step for 'exentsions' data (tuck exenstions into the query json, and keep dangling bracket)
+                if '},"extensions":' in vars:
+                    ret_val = vars.replace('},"extensions":', ',"extensions":')
+                else:
+                    ret_val = vars[:-1]  # return things right of the variables, except for dangling bracket
             else:
                 ret_val = sec_c
     except Exception as e:
         pass
     return ret_val
+
+
+def parse_section_e(req):
+    """
+    section e has the response
+
+    --ac12e444-E--
+    <json> (or <something>)
+    """
+    sec_e = req.get("E", None)
+    return sec_e
 
 
 def parse_section_f(req, def_code="520"):
@@ -179,6 +195,9 @@ def parse_raw_request(req):
 
     payload = parse_section_c(req)
     rec['payload'] = payload
+
+    response = parse_section_e(req)
+    rec['response'] = response
 
     code = parse_section_f(req)
     rec['code'] = code

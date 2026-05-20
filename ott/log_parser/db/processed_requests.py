@@ -1,5 +1,4 @@
 from ast import Return
-#import imp -- MARCH 7 2026 .. removed this depricated core util (any errors?)
 from re import S
 from sqlalchemy import Column, String, Boolean, Integer, Float, func, and_
 from sqlalchemy.orm import relationship
@@ -54,11 +53,12 @@ class ProcessedRequests(Base):
         uselist=False, viewonly=True,
     )
 
-    def __init__(self, raw_rec):
+    def __init__(self, raw_rec, ignore_test_system=False):
+        #import pdb; pdb.set_trace()
         super(ProcessedRequests, self)
         self.log_id = raw_rec.id
         self.ip_hash = utils.obfuscate(raw_rec.ip)
-        self.app_name = self.get_app_name(raw_rec)
+        self.app_name = self.get_app_name(raw_rec, ignore_test_system)
 
         # TODO - refactor, this is a confusing mix of model and controller / parser
         try:
@@ -81,13 +81,76 @@ class ProcessedRequests(Base):
             self.parse_modes(modes)
             self.parse_companies(qs)
             self.apply_filters(raw_rec.url)
+            self.check_response(raw_rec.response)
         except:
             self.filter_request = -111
             log.debug("couldn't parse " + raw_rec.url)
 
+    @classmethod
+    def get_agency_map(cls, tm_only=False):
+        tm_map = {
+            "TRIMET:TRAM":"Aerial Tram",
+            "TRIMET:PSC":"Streetcar",
+            "TRIMET:TRIMET":"TriMet",
+        }
+        rtp_map = {
+            "CLACKAMAS:ADULT":"Clackamas",
+            "CTRAN:ADULT":"C-TRAN",
+            "CTRAN_FLEX:ADULT":"The Current",
+            "MULT:ADULT":"Multnomah",
+            "RIDECONNECTION:ADULT":"Ride Connection",
+            "SAM:ADULT":"SAM",
+            "SMART:ADULT":"SMART",
+            "WASH_FLEX":"SPOT",
+            "WAPARK":"Washington Park",
+        }
+
+        if tm_only:
+            agency_map = tm_map
+        else:
+            agency_map = tm_map | rtp_map
+
+        return agency_map
+
+    def check_response(self, response):
+        def find_agencies():
+            agency_map = self.get_agency_map()
+            ag = []
+            for ak in agency_map.keys():
+                if ak in response:
+                    ag.append(agency_map.get(ak))
+
+            ret_val = "" if len(ag) <= 0 else ",".join(ag)
+            return ret_val
+
+        def filter_modes(def_mode="WALK"):
+            #import pdb; pdb.set_trace()
+            m = self.modes
+            if "BUS" not in response: m = m.replace('BUS', '')
+            if not utils.is_match_any(["RAIL", "SUBWAY", "TRAIN", "TRAM", "GONDOLA"], response): m = m.replace('RAIL', '')
+            if not utils.is_match_any(["CALL_AGENCY", "COORDINATE_WITH_DRIVER"], response): m = m.replace('FLEX', '')
+            m = m.replace(',,', ',')
+            m = m.strip(",$")
+            if m is None or m == "" or m == ",":
+                m = def_mode
+            return m
+
+        #import pdb; pdb.set_trace()
+        if response:
+            if '"itineraries":[{' in response:
+                self.agencies = find_agencies()
+                self.modes = filter_modes()
+            elif utils.is_match_all(['errors":[{"message"'], response):
+                self.agencies = None
+            elif utils.is_match_all(['"itineraries":[]', 'routingErrors', 'code'], response):
+                self.agencies = None
+            elif utils.is_match_all(['"itineraries":[]', 'routingErrors'], response):
+                self.agencies = None
+
+
     def apply_filters(self, url, fltval=-222):
         """ filter out uptime test urls, etc... """
-        #import pdb; pdb.set_trace()        
+        #import pdb; pdb.set_trace()
         if self.filter_request is None:
             if 'fromPlace=PDX' in url and ('toPlace=ZOO' in url or 'toPlace=SW%20Zoo%20Rd' in url):
                 self.filter_request = fltval
@@ -116,7 +179,7 @@ class ProcessedRequests(Base):
                 self.filter_request = fltval + 55
 
     @classmethod
-    def get_app_name(cls, rec, def_val="no idea what app..."):
+    def get_app_name(cls, rec, ignore_test_system=False, def_val="no idea what app..."):
         """ trimet specific -- override me for other agencies / uses """
         app_name = def_val
 
@@ -136,7 +199,7 @@ class ProcessedRequests(Base):
 
         if len(rec.referer) > 3:
             referer = rec.referer.lower()
-            if 'localhost:8000' in referer or 'labs' in referer or 'test.trimet' in referer:
+            if ignore_test_system is False and ('localhost:8000' in referer or 'labs' in referer or 'test.trimet' in referer):
                 app_name = TEST_SYSTEM
             elif 'call-test' in referer:
                 app_name = call2
@@ -158,7 +221,7 @@ class ProcessedRequests(Base):
         elif utils.is_old_trimet(rec.url):
             app_name = old
 
-        if utils.is_developer_api(rec.url):
+        if ignore_test_system is False and utils.is_developer_api(rec.url):
             rec.is_api = True
             if app_name is def_val:
                 app_name = api
@@ -222,26 +285,7 @@ class ProcessedRequests(Base):
         return the list of agencies implied in the request
         will look at the banned agencies param, and trim the list of possible request agencies
         """
-        tm_map = {
-            "TRIMET:TRAM":"Aerial Tram",
-            "TRIMET:PSC":"Streetcar",
-            "TRIMET:TRIMET":"TriMet",
-        }
-        rtp_map = {
-            "CLACKAMAS":"Clackamas",
-            "CTRAN":"C-TRAN",
-            "CTRAN_FLEX":"The Current",
-            "MULT":"Multnomah",
-            "RIDECONNECTION:":"Ride Connection",
-            "SAM":"SAM",
-            "SMART":"SMART",
-            "WASH_FLEX":"SPOT",
-            "WAPARK":"Washington Park",
-        }
-        if tm_only:
-            agency_map = tm_map
-        else:
-            agency_map = tm_map | rtp_map
+        agency_map = self.get_agency_map(tm_only)
 
         # filter banned agencies from the above list
         for b in utils.get_banned_agencies(qs):
@@ -322,6 +366,7 @@ class ProcessedRequests(Base):
                 - request datetime
                 - ???
         """
+        #import pdb; pdb.set_trace()
         ua = utils.clean_useragent(self.log.browser)
         browser = utils.get_browser(ua)
         url = utils.to_url(self.log)
@@ -347,7 +392,7 @@ class ProcessedRequests(Base):
         return ret_val
 
     @classmethod
-    def process(cls, chunk_size=10000):
+    def process(cls, chunk_size=10000, ignore_test_system=False):
         """
         process logs from log file(s)
         """
@@ -361,7 +406,7 @@ class ProcessedRequests(Base):
                 # step 2: loop thru raw log file entries
                 processed = []
                 for l in logs:
-                    p = ProcessedRequests(l)
+                    p = ProcessedRequests(l, ignore_test_system)
                     processed.append(p)
                     # step 2b: save off the post-process data in 'chunks'
                     if len(processed) > chunk_size:

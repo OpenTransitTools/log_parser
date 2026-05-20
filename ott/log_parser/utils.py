@@ -154,19 +154,28 @@ def obfuscate(input, key=u'key'):
     return digest
 
 
-def cmd_line_loader(prog_name='log_parser/bin/loader', sub_dirs=[""]):
+def cmd_line_loader(prog_name='poetry run loader', sub_dirs=[""]):
     parser = db_cmdline.db_parser(prog_name, url_required=False)
     parser.add_argument(
         '--log_directory', '--logs', '-logs', '-l',
         required=True,
         help="Directory of .log files..."
     )
+    # TODO: why are both logs and files needed?
+    # file_utils.find_files(cmdline.log_directory, cmdline.files, True)
     parser.add_argument(
         '--files', '--ff', '-ff',
         required=False,
         default=".log",
         help="Directory of .log files..."
     )
+    parser.add_argument(
+        '--test_system', '--ts', '-ts',
+        action='store_true',
+        required=False,
+        help="Don't mark any records as coming from a 'test system' (e.g., ability to load test requests and publish things, etc...)."
+    )
+
     cmdline = parser.parse_args()
     files = file_utils.find_files(cmdline.log_directory, cmdline.files, True)
     if len(files) == 0:
@@ -233,8 +242,12 @@ def encode(p):
 def to_url(log):
     ret_val = log.url
     if log.payload and len(log.payload) > 10 and '?' not in log.url:
-        pl = json.loads(log.payload)  # OTP 2.x graphql
-        ret_val = "{}home/planner-trip/?fromPlace={}&toPlace={}".format(log.referer, encode(pl.get('fromPlace')), encode(pl.get('toPlace')))
+        #import pdb; pdb.set_trace()
+        try:
+            pl = json.loads(log.payload)  # OTP 2.x graphql
+            ret_val = "{}home/planner-trip/?fromPlace={}&toPlace={}".format(log.referer, encode(pl.get('fromPlace')), encode(pl.get('toPlace')))
+        except Exception as e:
+            pass
     return ret_val
 
 
