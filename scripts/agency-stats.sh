@@ -4,7 +4,7 @@ DIR=`dirname $0`
 DO_PRINT=${1:-"TRUE"}
 IN=${2:-"trip_requests.csv"}
 F=${3:-"/tmp/agencies.txt"}
-OUT_FILE="${OTP_OUT_DIR}/${DT}_agency.txt"
+OUT_FILE=${4:-"${OTP_OUT_DIR}/${DT}_agency.txt"}
 
 # parse the UrbanLogiq .csv trips file
 poetry run modes_plus_agencies -f $IN > $F
