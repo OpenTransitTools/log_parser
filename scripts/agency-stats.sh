@@ -2,11 +2,12 @@ DIR=`dirname $0`
 . $DIR/base.sh
 
 DO_PRINT=${1:-"TRUE"}
-F=${2:-"agencies.txt"}
-
+IN=${2:-"trip_requests.csv"}
+F=${3:-"/tmp/agencies.txt"}
 OUT_FILE="${OTP_OUT_DIR}/${DT}_agency.txt"
 
-poetry run modes_plus_agencies > $F
+# parse the UrbanLogiq .csv trips file
+poetry run modes_plus_agencies -f $IN > $F
 
 # total trips
 cat $F|awk '{sum += $1} END {print "Total number of trips: " sum}' > $OUT_FILE
