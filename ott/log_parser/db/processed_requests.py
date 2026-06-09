@@ -77,6 +77,7 @@ class ProcessedRequests(Base):
             self.parse_from(qs)
             self.parse_to(qs)
             self.parse_from_to_metadata(qs)
+            self.parse_extensions(qs)
             self.parse_agencies(qs, tm_only)
             self.parse_modes(modes)
             self.parse_companies(qs)
@@ -275,10 +276,24 @@ class ProcessedRequests(Base):
         to = qs.get('toPlace')
 
         #import pdb; pdb.set_trace()
-        self.ft_gps = utils.parse_ft_metadata(fm, to, "GPS")
+        self.ft_gps = utils.parse_ft_metadata(fm, to, "::GPS")
         self.ft_stop = utils.parse_ft_stop(fm, to)
         self.ft_pr = utils.parse_ft_pr(fm, to)
         self.ft_map = utils.parse_ft_map(fm, to)
+
+    def parse_from_to_extensions(self, ext):
+        fm = ext.get('fromType')
+        to = ext.get('toType')
+
+        self.ft_gps = utils.parse_ft_metadata(fm, to, "GPS")
+        self.ft_stop = utils.parse_ft_metadata(fm, to, "STOP")
+        self.ft_pr = utils.parse_ft_metadata(fm, to, "PR")
+        self.ft_map = utils.parse_ft_metadata(fm, to, "MAP")
+
+    def parse_extensions(self, qs):
+        ext = qs.get('extensions')
+        if ext:
+            self.parse_from_to_extensions(ext)
 
     def parse_agencies(self, qs, tm_only=False):
         """
