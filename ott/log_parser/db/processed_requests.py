@@ -285,10 +285,11 @@ class ProcessedRequests(Base):
         fm = ext.get('fromType')
         to = ext.get('toType')
 
-        self.ft_gps = utils.parse_ft_metadata(fm, to, "GPS")
-        self.ft_stop = utils.parse_ft_metadata(fm, to, "STOP")
-        self.ft_pr = utils.parse_ft_metadata(fm, to, "PR")
-        self.ft_map = utils.parse_ft_metadata(fm, to, "MAP")
+        if len(fm) > 0 or len(to) > 0:
+            self.ft_gps = utils.parse_ft_metadata(fm, to, "GPS")
+            self.ft_stop = utils.parse_ft_metadata(fm, to, "STOP")
+            self.ft_pr = utils.parse_ft_metadata(fm, to, "PR")
+            self.ft_map = utils.parse_ft_metadata(fm, to, "MAP")
 
     def parse_extensions(self, qs):
         ext = qs.get('extensions')
