@@ -251,14 +251,13 @@ def to_url(log):
     return ret_val
 
 
-def parse_ft_metadata(fm, to, tag):
+def parse_ft_metadata(fm, to, tag, def_val=""):
     """
     see if there's a tag in the from and/or to coord from the TORA app
     ex: fromPlace=PDX::45.5,-122.5::MAP, where TORA adds the '::MAP' tag indicating the user clicked on the map to select PDX
     ex: toPlace=ZOO::45.5,-122.5::GPS, where '::GPS' tells us customer used GPS to determine the to location
     """
-    ret_val = ""
-    tag = f"::{tag}"
+    ret_val = def_val
     if tag in fm and tag in to:
         ret_val = "BOTH"
     elif tag in fm:
@@ -274,7 +273,7 @@ def parse_ft_map(fm, to):
         fm = f"{fm}::MAP"
     if "::Oregon" in to or "::Washington" in to:
         to = f"{to}::MAP"
-    return parse_ft_metadata(fm, to, "MAP")
+    return parse_ft_metadata(fm, to, "::MAP")
 
 
 def parse_ft_stop(fm, to):
@@ -283,7 +282,7 @@ def parse_ft_stop(fm, to):
         fm = f"{fm}::STOP"
     if "Stop ID" in to:
         to = f"{to}::STOP"
-    return parse_ft_metadata(fm, to, "STOP")
+    return parse_ft_metadata(fm, to, "::STOP")
 
 
 def parse_ft_pr(fm, to):
@@ -292,7 +291,7 @@ def parse_ft_pr(fm, to):
         fm = f"{fm}::PR"
     if "Park & Ride" in to and "Stop ID" not in to:
         to = f"{to}::PR"
-    return parse_ft_metadata(fm, to, "PR")
+    return parse_ft_metadata(fm, to, "::PR")
 
 
 def just_lat_lon(named_coord):
