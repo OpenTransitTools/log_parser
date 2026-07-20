@@ -4,6 +4,8 @@ ODIR=~/var/otp_trips
 PDIR=~/processing/
 SKIP_WAITING=FALSE
 
+FORCE=${1:-"NOFORCE"}  # process all dates (don't wait for input)
+
 
 function waiting() {
   if [[ $SKIP_WAITING != TRUE ]]
@@ -25,6 +27,7 @@ function waiting() {
 # CLS
 clear
 
+
 # loop thru days
 DAYS="21 20 19 18 17 16 15 14 13 12 11 10 9 8"  # process 21 to 8 days prior
 DAYS="1 2"  # process yesterday and the day before
@@ -40,27 +43,25 @@ do
 
   # clear the db, load db and generate .csv data
   poetry run loader -c -l CLEAR
-  poetry run load_and_post_process -c -l ~/processing/
+  poetry run load_and_post_process -c -l $OUT_DIR
   poetry run publisher
+  poetry run stats > stats.txt
+  ${DIR}/agency-stats.sh FALSE "" "" agency.txt
 
   # copy data to the hot-dir toward 
-  mv ./trip_requests.csv $ODIR/${DT}_trips.csv
-  wc -l ${ODIR}*/${DT}_trips.csv
-  echo; echo
-  waiting
-done
-
-# show line counts of processed files
-for n in $DAYS
-do
-  DT=`date -d "${n} day ago" '+%Y-%m-%d'`
-  echo $DT
-  wc -l ${ODIR}*/${DT}_trips.csv
+  mv ./trip_requests.csv ${ODIR}/${DT}_trips.csv
   echo
+  if [[ "$FORCE" == "NOFORCE" ]]; then
+    echo
+    echo "NOTE: hitting continue will overwrite the ~/var/${ODIR}_transferred/${DT}_stats.txt and ~/var/${ODIR}_transferred/${DT}_agency.txt files. (And process the next batch of data)"
+    waiting
+  fi
+  mv ./stats.txt ~/var/${ODIR}_transferred/${DT}_stats.txt
+  mv ./agency.txt ~/var/${ODIR}_transferred/${DT}_agency.txt
+  wc -l ${ODIR}*/${DT}_trips.csv
 done
 
-# show size of processed files alongside the files (and sizes they'll replace)
-ls -l ${ODIR}*/*v
-echo
-
-echo "don't forget to run ~/bin/upload_to_urbanlogiq sync to move stuff over to UL"
+# remind to upload - show lines in the .csv files
+echo "IMPORTANT: run '~/bin/upload_to_urbanlogiq sync' to move these .csv files to UrbanLogiq!!"
+wc -l ${ODIR}/*_trips.csv
+echo; echo
