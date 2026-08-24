@@ -53,11 +53,11 @@ do
   echo
   if [[ "$FORCE" == "NOFORCE" ]]; then
     echo
-    echo "NOTE: hitting continue will overwrite the ~/var/${ODIR}_transferred/${DT}_stats.txt and ~/var/${ODIR}_transferred/${DT}_agency.txt files. (And process the next batch of data)"
+    echo "NOTE: hitting continue will overwrite the ${ODIR}_transferred/${DT}_stats.txt and ${ODIR}_transferred/${DT}_agency.txt files. (And process the next batch of data)"
     waiting
   fi
-  mv ./stats.txt ~/var/${ODIR}_transferred/${DT}_stats.txt
-  mv ./agency.txt ~/var/${ODIR}_transferred/${DT}_agency.txt
+  mv ./stats.txt ${ODIR}_transferred/${DT}_stats.txt
+  mv ./agency.txt ${ODIR}_transferred/${DT}_agency.txt
   wc -l ${ODIR}*/${DT}_trips.csv
 done
 

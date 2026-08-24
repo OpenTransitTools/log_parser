@@ -1,8 +1,9 @@
 # junk & crap
+agency.txt
 agencies.txt
+stats.txt
 logs
 files
-stats.txt
 *.csv
 US*geojson
 vendor*
