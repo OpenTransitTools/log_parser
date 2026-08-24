@@ -1,4 +1,5 @@
 # USED TO PROCESS LOG FILES from 2+ days hence...
+DIR=`dirname $0`
 
 ODIR=~/var/otp_trips
 PDIR=~/processing/
@@ -29,11 +30,10 @@ clear
 
 
 # loop thru days
-DAYS="21 20 19 18 17 16 15 14 13 12 11 10 9 8"  # process 21 to 8 days prior
-DAYS="1 2"  # process yesterday and the day before
+DAYS="7 8 9 10 11"
 for n in $DAYS
 do
-  # copy data to the hot-dir toward 
+  # copy data to the hot-dir toward
   DT=`date -d "${n} day ago" '+%Y-%m-%d'`
   echo $DT
 
@@ -43,12 +43,12 @@ do
 
   # clear the db, load db and generate .csv data
   poetry run loader -c -l CLEAR
-  poetry run load_and_post_process -c -l $OUT_DIR
+  poetry run load_and_post_process -c -l $PDIR
   poetry run publisher
   poetry run stats > stats.txt
   ${DIR}/agency-stats.sh FALSE "" "" agency.txt
 
-  # copy data to the hot-dir toward 
+  # copy data to the hot-dir toward
   mv ./trip_requests.csv ${ODIR}/${DT}_trips.csv
   echo
   if [[ "$FORCE" == "NOFORCE" ]]; then
