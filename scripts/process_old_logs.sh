@@ -5,7 +5,8 @@ ODIR=~/var/otp_trips
 PDIR=~/processing/
 SKIP_WAITING=FALSE
 
-FORCE=${1:-"NOFORCE"}  # process all dates (don't wait for input)
+DAYS=${1:-"1"}
+FORCE=${2:-"NOFORCE"}  # process all dates (don't wait for input)
 
 
 function waiting() {
@@ -30,7 +31,6 @@ clear
 
 
 # loop thru days
-DAYS="7 8 9 10 11"
 for n in $DAYS
 do
   # copy data to the hot-dir toward
